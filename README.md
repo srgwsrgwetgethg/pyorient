@@ -1,40 +1,37 @@
-# pyorient
+# PyOrient - Python driver for OrientDB
 
-**master**   
+**master**<br>
 [![Build Status](https://travis-ci.org/mogui/pyorient.svg?branch=master)](https://travis-ci.org/marcauberer/pyorient) [![Coverage Status](https://coveralls.io/repos/mogui/pyorient/badge.svg?branch=master&service=github)](https://coveralls.io/github/marcauberer/pyorient?branch=master)
 
-**develop**   
+**develop**<br>
 [![Build Status](https://travis-ci.org/mogui/pyorient.svg?branch=develop)](https://travis-ci.org/marcauberer/pyorient) [![Coverage Status](https://coveralls.io/repos/mogui/pyorient/badge.svg?branch=develop&service=github)](https://coveralls.io/github/marcauberer/pyorient?branch=develop)
 
+PyOrient is a community-driven [OrientDB](https://orientdb.org/) driver for python that uses the binary protocol.
 
-[Orientdb](http://www.orientechnologies.com/) driver for python that uses the binary protocol.
+> **Note**: If you want to use OrientDB version 2.x or Python 2.7, please use pyorient v1.5.5
 
-Pyorient works with orientdb version 1.7 and later.
-> **Warning** Some issues are experimented with record_create/record_upload and OrientDB < 2.0. These command are strongly discouraged with these versions
+> **Warning**: Some issues are experimented with record_create/record_upload and OrientDB < 2.0. These command are strongly discouraged with these versions
 
-> **NOTICE** Prior to version 1.4.9 there was a potential SQL injection vulnerability that now is fixed.
+> **NOTICE**: Prior to version 1.4.9 there was a potential SQL injection vulnerability that now is fixed.
 (see [details](https://github.com/mogui/pyorient/pull/172) , [details](https://github.com/mogui/pyorient/pull/182) )
 
 ## Installation
-
-	pip install pyorient
+```console
+user@local:~$ pip install pyorient
+```
 
 ## Documentation
-
-  [OrientDB PyOrient Python Driver](http://orientdb.com/docs/last/PyOrient.html)
+*Documentation will be available soon*
 
 ## How to contribute
-
 - Fork the project
 - work on **develop** branch
 - Make your changes
-- Add tests for it. This is important so I don't break it in a future version unintentionally
-- Send me a pull request *(pull request to master will be rejected)*
-- ???
+- Add tests for it. This is important so we don't break it in a future version unintentionally
+- Send us a pull request *(pull request to master will be rejected)*
 - PROFIT
 
 ## How to run tests
-
 - ensure you have `ant` and `nose` installed properly
 - bootstrap orient by running `./ci/ci-start.sh` from project directory   
   *it will download latest orient and make some change on config and database for the tests*
@@ -209,13 +206,15 @@ assert res["#3:3"].holiday == 'surf'
 
 ### Execute OrientDB SQL Batch
 ```python
-cmd = ("begin;"
+cmd = (
+    "begin;"
     "let a = create vertex set script = true;"
     "let b = select from v limit 1;"
     "let e = create edge from $a to $b;"
-    "commit retry 100;")
+    "commit retry 100;"
+)
 
-    edge_result = self.client.batch(cmd)
+edge_result = self.client.batch(cmd)
 ```
 
 ### Persistent Connections ( Session Token )
@@ -228,8 +227,7 @@ Since version 27 is introduced an extension to allow use a token based session. 
 When using the token based authentication, the connections can be shared between users of the same server.
 ```python
 client = pyorient.OrientDB("localhost", 2424)
-client.set_session_token( True )  # set true to enable the token based
-authentication
+client.set_session_token( True )  # set true to enable the token based authentication
 client.db_open( "GratefulDeadConcerts", "admin", "admin" )
 
 ### store this token somewhere
@@ -244,21 +242,20 @@ client = pyorient.OrientDB("localhost", 2424)
 ### set the previous obtained token to re-attach to the old session
 client.set_session_token( sessionToken )
 
-### now the dbOpen is not needed to perform database operations
+### now the db_open command is not needed to perform database operations
 record = client.query( 'select from V where @rid = #9:1' )
 
 ### set the flag again to true if you want to renew the token
 client.set_session_token( True )  # set true
 client.db_open( "GratefulDeadConcerts", "admin", "admin" )
-new_sessionToken = client.get_session_token()
+newSessionToken = client.get_session_token()
 
+### Check if the token has changed
 assert sessionToken != new_sessionToken
 ```
 
 ### A GRAPH Example
-
 The GRAPH representation of animals and its food
-
 
 ```python
 import pyorient
@@ -267,31 +264,31 @@ client = pyorient.OrientDB("localhost", 2424)  # host, port
 ### open a connection (username and password)
 client.connect("admin", "admin")
 
-### create a database
+### create a database called 'animals' of type graph and stored in-memory
 client.db_create("animals", pyorient.DB_TYPE_GRAPH, pyorient.STORAGE_TYPE_MEMORY)
 
-### select to use that database
+### open that database
 client.db_open("animals", "admin", "admin")
 
-### Create the Vertex Animal
+### Create the vertex called 'Animal'
 client.command("create class Animal extends V")
 
 ### Insert a new value
 client.command("insert into Animal set name = 'rat', specie = 'rodent'")
 
-### query the values
+### query all values
 client.query("select * from Animal")
 [<OrientRecord at 0x7f>..., ...]
 
-### Create the vertex and insert the food values
+### Create a vertex called 'Food' and insert the food values
 
 client.command('create class Food extends V')
 client.command("insert into Food set name = 'pea', color = 'green'")
 
-### Create the edge for the Eat action
+### Create the edge for the 'Eat' action
 client.command('create class Eat extends E')
 
-### Lets the rat likes to eat pea
+### Let the rat like to eat pea
 eat_edges = client.command(
     "create edge Eat from ("
     "select from Animal where name = 'rat'"
@@ -318,9 +315,9 @@ for food in animal_foods:
 ```
 
 ## Authors
-- [mogui](https://github.com/mogui/)
-- [ostico](https://github.com/ostico/)
+- [mogui](https://github.com/mogui)
+- [ostico](https://github.com/ostico)
+- [marcauberer](https://github.com/marcauberer)
 
 ## Copyright
-
 Copyright (c) 2014 Niko Usai, Domenico Lupinetti. See LICENSE for details.
