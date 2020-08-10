@@ -8,12 +8,11 @@ python:
 
 addons:
   apt:
-    sources:
-      - sourceline: 'ppa:webupd8team/java'
-    update: true
+#    sources:
+#      - sourceline: 'ppa:webupd8team/java'
+#    update: true
     packages:
-      - oracle-java9-installer
-      - oracle-java9-set-default
+      - openjdk-9-jdk
 
 install:
   - pip install coveralls
