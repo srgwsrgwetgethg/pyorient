@@ -6,16 +6,20 @@ python:
   - '3.6'
   - '3.8'
 
-#addons:
-#  apt:
-#    sources:
-#      - sourceline: 'ppa:webupd8team/java'
-#    update: true
-#    packages:
-#      - openjdk-8-jdk
+addons:
+  apt:
+    packages:
+      - openjdk-8-jdk
 
 install:
-  - sudo -E apt-get -yq --no-install-suggests --no-install-recommends install openjdk-8-jdk
+  - ls -la /usr
+  - ls -la /usr/lib
+  - ls -la /usr/lib/jvm
+  - ls -la /usr/lib/jvm/java-8-oracle
+  - ls -la /usr/lib/jvm/java-8-oracle/jre
+  - ls -la /usr/lib/jvm/java-8-oracle/jre/bin
+  - ls -la /usr/lib/jvm/java-8-oracle/jre/bin/java
+  - update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-8-oracle/jre/bin/java 1100
   - pip install coveralls
   - pip install pyorient_native
   - ./ci/start-ci.sh $ORIENTDB_VERSION
