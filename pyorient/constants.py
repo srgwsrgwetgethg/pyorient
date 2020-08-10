@@ -1,9 +1,10 @@
-__author__ = 'mogui <mogui83@gmail.com>'
+__author__ = 'mogui <mogui83@gmail.com>, Marc Auberer <marc.auberer@sap.com>'
 
 # Driver constants
 NAME = "OrientDB Python binary client (pyorient)"
 VERSION = "2.0.0"
-SUPPORTED_PROTOCOL = 37
+SUPPORTED_PROTOCOL = 38
+ERROR_ON_NEWER_PROTOCOL = True
 
 # Type constants
 BOOLEAN = 1
@@ -17,6 +18,34 @@ RECORD = 8
 STRINGS = 9
 CHAR = 10
 LINK = 11
+
+# Type map
+TYPE_MAP = {
+    'BOOLEAN': 0,
+    'INTEGER': 1,
+    'SHORT': 2,
+    'LONG': 3,
+    'FLOAT': 4,
+    'DOUBLE': 5,
+    'DATETIME': 6,
+    'STRING': 7,
+    'BINARY': 8,
+    'EMBEDDED': 9,
+    'EMBEDDEDLIST': 10,
+    'EMBEDDEDSET': 11,
+    'EMBEDDEDMAP': 12,
+    'LINK': 13,
+    'LINKLIST': 14,
+    'LINKSET': 15,
+    'LINKMAP': 16,
+    'BYTE': 17,
+    'TRANSIENT': 18,
+    'DATE': 19,
+    'CUSTOM': 20,
+    'DECIMAL': 21,
+    'LINKBAG': 22,
+    'ANY': 23
+}
 
 # Field types, needed for decoding
 # we have the type definition and the number of first bytes to read
