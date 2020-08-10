@@ -15,6 +15,8 @@ addons:
       - openjdk-8-jdk
 
 install:
+  - ls -la $HOME
+  - export JAVA_HOME=$HOME/openjdk8
   - pip install coveralls
   - pip install pyorient_native
   - ./ci/start-ci.sh $ORIENTDB_VERSION
