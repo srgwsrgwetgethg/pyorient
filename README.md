@@ -1,10 +1,10 @@
 # PyOrient - Python driver for OrientDB
 
 **master**<br>
-[![Build Status](https://travis-ci.org/mogui/pyorient.svg?branch=master)](https://travis-ci.org/marcauberer/pyorient) [![Coverage Status](https://coveralls.io/repos/mogui/pyorient/badge.svg?branch=master&service=github)](https://coveralls.io/github/marcauberer/pyorient?branch=master)
+[![Build Status](https://travis-ci.org/marcauberer/pyorient.svg?branch=master)](https://travis-ci.org/marcauberer/pyorient) [![Coverage Status](https://coveralls.io/repos/marcauberer/pyorient/badge.svg?branch=master&service=github)](https://coveralls.io/github/marcauberer/pyorient?branch=master)
 
 **develop**<br>
-[![Build Status](https://travis-ci.org/mogui/pyorient.svg?branch=develop)](https://travis-ci.org/marcauberer/pyorient) [![Coverage Status](https://coveralls.io/repos/mogui/pyorient/badge.svg?branch=develop&service=github)](https://coveralls.io/github/marcauberer/pyorient?branch=develop)
+[![Build Status](https://travis-ci.org/marcauberer/pyorient.svg?branch=develop)](https://travis-ci.org/marcauberer/pyorient) [![Coverage Status](https://coveralls.io/repos/marcauberer/pyorient/badge.svg?branch=develop&service=github)](https://coveralls.io/github/marcauberer/pyorient?branch=develop)
 
 PyOrient is a community-driven [OrientDB](https://orientdb.org/) driver for python that uses the binary protocol.
 
