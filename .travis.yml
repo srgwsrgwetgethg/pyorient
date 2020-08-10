@@ -15,7 +15,6 @@ addons:
       - openjdk-8-jdk
 
 install:
-  - update-alternatives --config java
   - export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
   - pip install coveralls
   - pip install pyorient_native
