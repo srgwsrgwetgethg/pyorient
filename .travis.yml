@@ -5,6 +5,7 @@ python:
   - '3.5'
   - '3.6'
   - '3.8'
+  - '3.9-dev'
 
 addons:
   apt:
@@ -13,7 +14,6 @@ addons:
 
 install:
   - sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java 1100
-  - echo $JAVA_HOME
   - export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
   - export PATH=$JAVA_HOME/bin:$PATH
   - pip install coveralls
