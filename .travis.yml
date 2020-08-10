@@ -1,5 +1,5 @@
 os: linux
-dist: xenial
+dist: focal
 language: python
 python:
   - '3.5'
@@ -15,9 +15,8 @@ addons:
       - openjdk-8-jdk
 
 install:
-  - which java
-  - whereis java
-  - export JAVA_HOME=$HOME/openjdk8
+  - update-alternatives --config java
+  - export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
   - pip install coveralls
   - pip install pyorient_native
   - ./ci/start-ci.sh $ORIENTDB_VERSION
