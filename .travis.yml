@@ -12,7 +12,7 @@ addons:
 #      - sourceline: 'ppa:webupd8team/java'
 #    update: true
     packages:
-      - openjdk-9-jdk
+      - openjdk-8-jdk
 
 install:
   - pip install coveralls
