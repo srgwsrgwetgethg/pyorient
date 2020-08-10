@@ -8,9 +8,7 @@
 
 PyOrient is a community-driven [OrientDB](https://orientdb.org/) driver for python that uses the binary protocol.
 
-> **Note**: If you want to use OrientDB version 2.x or Python 2.7, please use pyorient v1.5.5
-
-> **Warning**: Some issues are experimented with record_create/record_upload and OrientDB < 2.0. These command are strongly discouraged with these versions
+> **Note**: If you want to use OrientDB version 2.x or Python 2.7, please use pyorient v1.x and follow the instructions in the python-2.7-odb-2.x branch of this repo
 
 > **NOTICE**: Prior to version 1.4.9 there was a potential SQL injection vulnerability that now is fixed.
 (see [details](https://github.com/mogui/pyorient/pull/172) , [details](https://github.com/mogui/pyorient/pull/182) )
@@ -320,4 +318,4 @@ for food in animal_foods:
 - [marcauberer](https://github.com/marcauberer)
 
 ## Copyright
-Copyright (c) 2014 Niko Usai, Domenico Lupinetti. See LICENSE for details.
+Copyright (c) 2020 Niko Usai, Domenico Lupinetti, Marc Auberer. See LICENSE for details.
