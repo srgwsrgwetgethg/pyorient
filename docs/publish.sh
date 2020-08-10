@@ -9,11 +9,11 @@ GHPAGES_DIR="$DOCS_DIR/build/html"
 
 if [ ! -d "$GHPAGES_DIR" ]; then
   echo "--- Cloning repo ---"
-  git clone https://mogui:$GH_TOKEN@github.com/mogui/pyorient.git $GHPAGES_DIR
+  git clone https://marcauberer:$GH_TOKEN@github.com/marcauberer/pyorient.git $GHPAGES_DIR
   cd $GHPAGES_DIR
   git checkout gh-pages
-  git config user.email "mogui-ci@example.com"
-  git config user.name "mogui CI"
+  git config user.email "pyorient-ci@example.com"
+  git config user.name "pyorient CI"
 else
   echo "--- Already cloned repository ---"
 fi
@@ -27,7 +27,7 @@ git pull
 cd $DOCS_DIR
 make html
 
-# push them
+# push them
 cd $GHPAGES_DIR
 git commit -a -m 'regenerate docs'
 git push origin gh-pages
