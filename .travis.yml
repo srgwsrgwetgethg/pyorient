@@ -13,6 +13,7 @@ addons:
 
 install:
   - sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java 1100
+  - export PATH=$JAVA_HOME/bin:/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
   - pip install coveralls
   - pip install pyorient_native
   - ./ci/start-ci.sh $ORIENTDB_VERSION
