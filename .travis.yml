@@ -10,7 +10,7 @@ addons:
   apt:
 #    sources:
 #      - sourceline: 'ppa:webupd8team/java'
-#    update: true
+    update: true
     packages:
       - openjdk-8-jdk
 
