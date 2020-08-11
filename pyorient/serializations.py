@@ -17,7 +17,7 @@
 __author__ = 'mogui <mogui83@gmail.com>, Marc Auberer <marc.auberer@sap.com>'
 
 from .exceptions import PyOrientBadMethodCallException, PyOrientInvalidSerializationModeException
-from .serializer import OrientSerializationCSV, OrientSerializationBinary
+from .serializer import *
 
 # Try to import pyorient_native. The binary protocol only can be used only pyorient_native is available
 try:
