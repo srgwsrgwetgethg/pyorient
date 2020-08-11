@@ -16,5 +16,5 @@
 
 __author__ = 'Ostico <ostico@gmail.com>, Marc Auberer <marc.auberer@sap.com>'
 
-from .csv import OrientSerializationCSV
-from .binary import OrientSerializationBinary
+from .csv import *
+from .binary import *
