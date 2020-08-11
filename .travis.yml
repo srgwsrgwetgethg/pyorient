@@ -1,17 +1,21 @@
 os: linux
-dist: trusty
+dist: focal
 language: python
 python:
   - '3.5'
-  - '3.7'
+  - '3.6'
+  - '3.8'
+  - '3.9-dev'
 
 addons:
   apt:
     packages:
-      - oracle-java9-installer
-      - oracle-java9-set-default
+      - openjdk-8-jdk
 
 install:
+  - sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java 1100
+  - export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+  - export PATH=$JAVA_HOME/bin:$PATH
   - pip install coveralls
   - pip install pyorient_native
   - ./ci/start-ci.sh $ORIENTDB_VERSION
