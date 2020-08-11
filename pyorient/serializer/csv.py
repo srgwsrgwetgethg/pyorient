@@ -1,4 +1,4 @@
-__author__ = 'Ostico <ostico@gmail.com>, Marc Auberer <marc.auberer@sap.com>'
+__author__ = 'mogui <mogui83@gmail.com>, Marc Auberer <marc.auberer@sap.com>'
 
 #  Copyright 2020 Niko Usai <usai.niko@gmail.com>, http://mogui.it; Marc Auberer, https://marc-auberer.de
 #
@@ -16,9 +16,12 @@ __author__ = 'Ostico <ostico@gmail.com>, Marc Auberer <marc.auberer@sap.com>'
 #  See the License for the specific language governing permissions and
 #   limitations under the License.
 
-# from .orient import OrientDB, OrientSocket
-from .exceptions import *
-# from .otypes import *
-from .constants import *
-# from .scripts import Scripts
-# from .serializations import OrientSerialization
+from pyorient.serializations import OrientSerialization
+
+
+class OrientSerializationCSV(object):
+    def __init__(self):
+        # Initialize attributes with default values
+        self.className = None
+        self.data = {}
+        self.type = OrientSerialization.CSV

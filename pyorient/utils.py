@@ -1,4 +1,4 @@
-__author__ = 'Ostico <ostico@gmail.com>, Marc Auberer <marc.auberer@sap.com>'
+__author__ = 'mogui <mogui83@gmail.com>, Marc Auberer <marc.auberer@sap.com>'
 
 #  Copyright 2020 Niko Usai <usai.niko@gmail.com>, http://mogui.it; Marc Auberer, https://marc-auberer.de
 #
@@ -16,9 +16,17 @@ __author__ = 'Ostico <ostico@gmail.com>, Marc Auberer <marc.auberer@sap.com>'
 #  See the License for the specific language governing permissions and
 #   limitations under the License.
 
-# from .orient import OrientDB, OrientSocket
-from .exceptions import *
-# from .otypes import *
-from .constants import *
-# from .scripts import Scripts
-# from .serializations import OrientSerialization
+import os
+
+
+def is_debug_active():
+    # Check if we're in debug mode
+    return 'DEBUG' in os.environ and os.environ['DEBUG'].lower() in ('1', 'true')
+
+
+def dlog(msg):
+    # Check for debug key because KeyErrorExceptions are not caught and if no debug key is set, the driver crashes
+    # with no reason when the connection is established
+    if is_debug_active():
+        # Print debug log message
+        print("[DEBUG]:: %s" % msg)

@@ -1,5 +1,21 @@
 __author__ = 'mogui <mogui83@gmail.com>, Marc Auberer <marc.auberer@sap.com>'
 
+#  Copyright 2020 Niko Usai <usai.niko@gmail.com>, http://mogui.it; Marc Auberer, https://marc-auberer.de
+#
+#  this file is part of pyorient
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#   limitations under the License.
+
 # Python imports
 import socket
 import struct
@@ -8,7 +24,9 @@ import struct
 from .serializations import OrientSerialization
 from .utils import dlog
 from .constants import SOCK_CONN_TIMEOUT, FIELD_SHORT, SUPPORTED_PROTOCOL, ERROR_ON_NEWER_PROTOCOL
-from .exceptions import PyOrientConnectionPoolException, PyOrientWrongProtocolVersionException, PyOrientConnectionException
+from .exceptions import PyOrientConnectionPoolException, PyOrientWrongProtocolVersionException,\
+    PyOrientConnectionException
+
 
 class OrientSocket(object):
     """
