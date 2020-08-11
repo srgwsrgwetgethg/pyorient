@@ -16,5 +16,5 @@
 
 __author__ = 'Ostico <ostico@gmail.com>, Marc Auberer <marc.auberer@sap.com>'
 
-from pyorient.serializer.csv import *
-from pyorient.serializer.binary import *
+from .csv import OrientSerializationCSV
+from .binary import OrientSerializationBinary
