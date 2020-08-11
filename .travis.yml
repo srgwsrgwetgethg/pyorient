@@ -10,11 +10,11 @@ python:
 addons:
   apt:
     packages:
-      - openjdk-8-jdk
+      - openjdk-9-jdk
 
 install:
-  - sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java 1100
-  - export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+  - sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-9-openjdk-amd64/jre/bin/java 1100
+  - export JAVA_HOME=/usr/lib/jvm/java-9-openjdk-amd64
   - export PATH=$JAVA_HOME/bin:$PATH
   - pip install coveralls
   - pip install pyorient_native
