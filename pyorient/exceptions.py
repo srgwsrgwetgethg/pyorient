@@ -1,5 +1,3 @@
-__author__ = 'Ostico <ostico@gmail.com>, Marc Auberer <marc.auberer@sap.com>'
-
 #  Copyright 2020 Niko Usai <usai.niko@gmail.com>, http://mogui.it; Marc Auberer, https://marc-auberer.de
 #
 #  this file is part of pyorient
@@ -15,6 +13,8 @@ __author__ = 'Ostico <ostico@gmail.com>, Marc Auberer <marc.auberer@sap.com>'
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #   limitations under the License.
+
+__author__ = 'Ostico <ostico@gmail.com>, Marc Auberer <marc.auberer@sap.com>'
 
 
 class PyOrientException(Exception):

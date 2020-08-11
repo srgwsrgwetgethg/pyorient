@@ -14,6 +14,8 @@
 #  See the License for the specific language governing permissions and
 #   limitations under the License.
 
+__author__ = 'mogui <mogui83@gmail.com>, Marc Auberer <marc.auberer@sap.com>'
+
 try:
     import configparser
 except ImportError:
@@ -21,9 +23,9 @@ except ImportError:
 
 
 def get_test_config():
-    # Read test configuration from the file 'test.cfg'
+    # Read test configuration from the file 'tests.cfg'
     config = configparser.RawConfigParser()
-    config.read('tests.cfg')
+    config.read('./tests/tests.cfg')
 
     # getfloat(), getint() and getboolean() raise an exceptions if the value is not of the specific type
     return {
