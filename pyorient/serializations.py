@@ -17,8 +17,6 @@
 __author__ = 'mogui <mogui83@gmail.com>, Marc Auberer <marc.auberer@sap.com>'
 
 from .exceptions import PyOrientBadMethodCallException, PyOrientInvalidSerializationModeException
-from pyorient.serializer.csv import OrientSerializationCSV
-from pyorient.serializer.binary import OrientSerializationBinary
 
 # Try to import pyorient_native. The binary protocol only can be used only pyorient_native is available
 try:
@@ -26,6 +24,24 @@ try:
     binary_can_be_used = True
 except ImportError:
     binary_can_be_used = False
+
+
+class OrientSerializationBinary(object):
+    def __init__(self, props):
+        # Initialize attributes with default values
+        self.className = None
+        self.data = {}
+        self.type = OrientSerialization.Binary
+        self.props = props
+        self._writer = None
+
+
+class OrientSerializationCSV(object):
+    def __init__(self):
+        # Initialize attributes with default values
+        self.className = None
+        self.data = {}
+        self.type = OrientSerialization.CSV
 
 
 class OrientSerialization(object):
