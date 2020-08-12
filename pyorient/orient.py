@@ -19,6 +19,7 @@ __author__ = 'mogui <mogui83@gmail.com>, Marc Auberer <marc.auberer@sap.com>'
 # Python imports
 import socket
 import struct
+import select
 
 # Local imports
 from .serializations import OrientSerialization
@@ -99,5 +100,56 @@ class OrientSocket(object):
         self.protocol = -1
         self.session_id = -1
 
+    def detect_server_disconnect(self, server_conn_timeout=SOCK_CONN_TIMEOUT):
+        # Trick to detect server disconnection to prevent this:
+        # https://docs.python.org/2/howto/sockets.html#when-sockets-die
+        try:
+            # As soon as the connection crashes, this raises an exception
+            return select.select([], [self._socket], [self._socket], server_conn_timeout)
+        except select.error as e:
+            # Connection crash, try to shutdown connection gracefully
+            self.connected = False
+            self._socket.close()
+            raise e
+
     def write(self, buff):
-        pass
+        # Call method to detect server disconnect
+        _, ready_to_write, in_error = self.detect_server_disconnect(1)
+
+        if not in_error and ready_to_write:
+            # Socket works -> send all data
+            self._socket.sendall(buff)
+            return len(buff)
+        else:
+            # Socket does not work -> close and raise exception
+            self.connected = False
+            self._socket.close()
+            raise PyOrientConnectionException("Socket error", [])
+
+    def read(self, _len_to_read):
+        while True:
+            # Call method to detect server disconnect
+            ready_to_read, _, in_error = self.detect_server_disconnect()
+
+            if len(ready_to_read) > 0:
+                buf = bytearray(_len_to_read)
+                view = memoryview(buf)
+                while _len_to_read:
+                    n_bytes = self._socket.recv_into(view, _len_to_read)
+                    # Nothing read -> Server went down
+                    if not n_bytes:
+                        self._socket.close()
+                        # TODO: Implement re-connection to another listener
+                        raise PyOrientConnectionException("Server seems to went down", [])
+
+                    # Shorten view and _len_to_read by n_bytes
+                    view = view[n_bytes:]
+                    _len_to_read -= n_bytes
+                # Read successfully, return result
+                return bytes(buf)
+
+            # Close connection, if error(s) occurred
+            if len(in_error) > 0:
+                self._socket.close()
+                raise PyOrientConnectionException("Socket error", [])
+
