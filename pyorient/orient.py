@@ -24,9 +24,9 @@ import select
 # Local imports
 from .serializations import OrientSerialization
 from .utils import dlog
-from .constants import SOCK_CONN_TIMEOUT, FIELD_SHORT, SUPPORTED_PROTOCOL, ERROR_ON_NEWER_PROTOCOL
+from .constants import SOCK_CONN_TIMEOUT, FIELD_SHORT, SUPPORTED_PROTOCOL, ERROR_ON_NEWER_PROTOCOL, MESSAGES
 from .exceptions import PyOrientConnectionPoolException, PyOrientWrongProtocolVersionException,\
-    PyOrientConnectionException
+    PyOrientConnectionException, PyOrientBadMethodCallException
 
 
 class OrientSocket(object):
@@ -238,3 +238,50 @@ class OrientDB(object):
         Returns the auth token of the current session
         """
         return self._connection.auth_token
+
+    # - # - # - # - # - # - # - # - # - # - # - # - # Server Commands # - # - # - # - # - # - # - # - # - # - # - # - #
+
+    def connect(self, user, password, client_id=''):
+        """
+        Connect to the server without opening a database
+
+        :param user: the username of the user on the server. e.g.: 'root'
+        :param password: the password of the user on the server. e.g.: 'secret_password'
+        :param client_id: client's id - can be null for clients. In clustered configuration it's the distributed node ID
+        as TCP host:port
+        """
+        return self.get_message("ConnectMessage").prepare((user, password, client_id, self._serialization_type))\
+            .send().fetch_response()
+
+    def get_message(self, command=None):
+        try:
+            if command is not None and MESSAGES[command]:
+                # Import class with the class name from the messages dictionary
+                _msg = __import__(
+                    MESSAGES[command],
+                    globals(),
+                    locals(),
+                    [command]
+                )
+
+                # Get the right instance from import list
+                _Message = getattr(_msg, command)
+                if self._connection.auth_token != b'':
+                    token = self._connection.auth_token
+                else:
+                    token = self._auth_token
+
+                message_instance = _Message(self._connection).set_session_token(token)
+                message_instance._push_callback = self._push_received
+                return message_instance
+        except KeyError as e:
+            self.close()
+            raise PyOrientBadMethodCallException("Unable to find command " + str(e), [])
+
+    @staticmethod
+    def _push_received(command_id, payload):
+        # REQUEST_PUSH_RECORD	        79
+        # REQUEST_PUSH_DISTRIB_CONFIG	80
+        # REQUEST_PUSH_LIVE_QUERY	    81
+        if command_id == 80:
+            pass

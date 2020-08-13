@@ -27,7 +27,7 @@ cache:
   - ./ci/environment/
 
 script:
-  - nosetests -vv --with-coverage --cover-xml --cover-erase --cover-package=pyorient
+  - nosetests -vv -s --with-coverage --cover-xml --cover-erase --cover-package=pyorient
 
 before_cache:
   - ls -la ./ci/environment/
