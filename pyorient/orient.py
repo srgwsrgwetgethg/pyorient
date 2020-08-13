@@ -153,3 +153,57 @@ class OrientSocket(object):
                 self._socket.close()
                 raise PyOrientConnectionException("Socket error", [])
 
+
+class OrientDB(object):
+    """
+    OrientDB client object
+
+    Point of entrance to use the basic commands you can issue to the server
+    :param host: hostname of the server to connect  defaults to localhost
+    :param port: integer port of the server         defaults to 2424
+    """
+    _connection = None
+    _auth_token = None
+
+    def __init__(self, host='localhost', port=2424, serialization_type=OrientSerialization.CSV):
+        if not isinstance(host, OrientDB):
+            connection = OrientSocket(host, port, serialization_type)
+        else:
+            connection = host
+
+        #: an :class:`OrientVersion <OrientVersion>` object representing connected server version, None if
+        #: not connected
+        self.version = None
+
+        #: array of :class:`OrientCluster <OrientCluster>` representing the connected database clusters
+        self.clusters = []
+
+        #: array of :class:`OrientNode <OrientNode>` if the connected server is in a distributed cluster config
+        self.nodes = []
+
+        self._cluster_map = None
+        self._cluster_reverse_map = None
+        self._connection = connection
+        self._serialization_type = serialization_type
+
+    def close(self):
+        self._connection.close()
+
+    def __getattr__(self, item):
+        # No special handling for private attributes / methods
+        if item.startswith("_"):
+            return super(OrientDB, self).__getattr__(item)
+
+        # Find class from dictionary by constructing the key
+        _names = "".join([i.capitalize() for i in item.split('_')])  # Snake Case to Camel Case converter
+        _Message = self.get_message(_names + "Message")
+
+        # Generate a wrapper function and return it
+        def wrapper(*args, **kw):
+            return _Message.prepare(args).send().fetch_response()
+        return wrapper
+
+    def _reload_clusters(self):
+        # Re-generate dictionaries from clusters
+        self._cluster_map = dict([(cluster.name, cluster.id) for cluster in self.clusters])
+        self._cluster_reverse_map = dict([(cluster.id, cluster.name) for cluster in self.clusters])

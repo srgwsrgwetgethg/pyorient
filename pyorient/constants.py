@@ -160,5 +160,36 @@ CLUSTER_TYPE_PHYSICAL = 'PHYSICAL'
 CLUSTER_TYPE_MEMORY = 'MEMORY'
 CLUSTER_TYPES = (CLUSTER_TYPE_PHYSICAL, CLUSTER_TYPE_MEMORY)
 
+# Message type dictionary
+MESSAGES = dict(
+    # Server
+    ConnectMessage="pyorient.messages.connection",
+    ShutdownMessage="pyorient.messages.connection",
+
+    DbOpenMessage="pyorient.messages.database",
+    DbCloseMessage="pyorient.messages.database",
+    DbExistsMessage="pyorient.messages.database",
+    DbCreateMessage="pyorient.messages.database",
+    DbDropMessage="pyorient.messages.database",
+    DbCountRecordsMessage="pyorient.messages.database",
+    DbReloadMessage="pyorient.messages.database",
+    DbSizeMessage="pyorient.messages.database",
+    DbListMessage="pyorient.messages.database",
+
+    # Cluster
+    DataClusterAddMessage="pyorient.messages.cluster",
+    DataClusterCountMessage="pyorient.messages.cluster",
+    DataClusterDataRangeMessage="pyorient.messages.cluster",
+    DataClusterDropMessage="pyorient.messages.cluster",
+
+    RecordCreateMessage="pyorient.messages.records",
+    RecordDeleteMessage="pyorient.messages.records",
+    RecordLoadMessage="pyorient.messages.records",
+    RecordUpdateMessage="pyorient.messages.records",
+
+    CommandMessage="pyorient.messages.commands",
+    TxCommitMessage="pyorient.messages.commands",
+)
+
 # OTHER CONFIGURATIONS
 SOCK_CONN_TIMEOUT = 30  # Socket timeout in seconds

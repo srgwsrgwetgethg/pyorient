@@ -20,7 +20,7 @@ from setuptools import setup
 
 setup(
     name='pyorient',
-    version='1.5.5',
+    version='2.0.0',
     author='Niko Usai <mogui83@gmail.com>, Domenico Lupinetti <ostico@gmail.com>, Marc Auberer <marc.auberer@sap.com>',
     description='OrientDB native client library',
     long_description=open('README.rst').read(),
