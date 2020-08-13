@@ -44,6 +44,7 @@ class OrientSocket(object):
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.protocol = -1
         self.session_id = -1
+        self.auth_token = b''
         self.db_opened = None
         self.serialization_type = serialization_type
         self.in_transaction = False
@@ -207,3 +208,33 @@ class OrientDB(object):
         # Re-generate dictionaries from clusters
         self._cluster_map = dict([(cluster.name, cluster.id) for cluster in self.clusters])
         self._cluster_reverse_map = dict([(cluster.id, cluster.name) for cluster in self.clusters])
+
+    def get_class_position(self, cluster_name):
+        """
+        Get the cluster position (id) by the name of the cluster
+        :param cluster_name: cluster name
+        :return: int cluster id
+        """
+        return self._cluster_map[cluster_name.lower()]
+
+    def get_class_name(self, position):
+        """
+        Get the cluster name by the position (id) of the cluster
+        :param position: cluster id
+        :return: string cluster name
+        """
+        return self._cluster_reverse_map[position]
+
+    def set_session_token(self, enable_token_authentication):
+        """
+        For using token authentication, please pass 'true'
+        :param enable_token_authentication: bool
+        """
+        self._auth_token = enable_token_authentication
+        return self
+
+    def get_session_token(self):
+        """
+        Returns the auth token of the current session
+        """
+        return self._connection.auth_token
