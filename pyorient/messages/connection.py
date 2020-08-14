@@ -14,11 +14,14 @@
 #  See the License for the specific language governing permissions and
 #   limitations under the License.
 
-__author__ = 'Ostico <ostico@gmail.com>, Marc Auberer <marc.auberer@sap.com>'
+__author__ = 'mogui <mogui83@gmail.com>, Marc Auberer <marc.auberer@sap.com>'
 
-from .orient import OrientDB, OrientSocket
-from .exceptions import *
-from .otypes import *
-from .constants import *
-# from .scripts import Scripts
-# from .serializations import OrientSerialization
+from ..constants import CONNECT_OP, FIELD_BYTE, FIELD_INT, FIELD_SHORT, FIELD_STRINGS, FIELD_BOOLEAN, FIELD_STRING,\
+    NAME, SUPPORTED_PROTOCOL, VERSION, SHUTDOWN_OP
+from ..exceptions import PyOrientBadMethodCallException
+from ..utils import need_connected
+from .base import BaseMessage
+
+
+class ConnectMessage(BaseMessage):
+    pass

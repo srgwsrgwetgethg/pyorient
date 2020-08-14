@@ -17,6 +17,7 @@
 __author__ = 'mogui <mogui83@gmail.com>, Marc Auberer <marc.auberer@sap.com>'
 
 import os
+from .exceptions import PyOrientConnectionException
 
 
 def is_debug_active():
@@ -30,3 +31,13 @@ def dlog(msg):
     if is_debug_active():
         # Print debug log message
         print("[DEBUG]:: %s" % msg)
+
+
+def need_connected(wrap):
+    # Define function and return it
+    def wrap_function(*args, **kwargs):
+        # Raise exception, if the passed client is not connected
+        if not args[0].is_connected():
+            raise PyOrientConnectionException("You must be connected to issue this command", [])
+        return wrap(*args, **kwargs)
+    return wrap_function

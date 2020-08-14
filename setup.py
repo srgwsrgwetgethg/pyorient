@@ -16,7 +16,7 @@
 #  See the License for the specific language governing permissions and
 #   limitations under the License.
 
-from setuptools import setup
+from setuptools import setup, find_namespace_packages
 
 setup(
     name='pyorient',
@@ -25,5 +25,5 @@ setup(
     description='OrientDB native client library',
     long_description=open('README.rst').read(),
     license='LICENSE',
-    packages=['pyorient', 'pyorient.messages', 'pyorient.ogm']
+    packages=find_namespace_packages(include=['pyorient.*'])
 )
