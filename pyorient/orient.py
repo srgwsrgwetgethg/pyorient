@@ -48,7 +48,7 @@ class OrientSocket(object):
         self.db_opened = None
         self.serialization_type = serialization_type
         self.in_transaction = False
-        self._props = None
+        self.props = None
 
     def get_connection(self):
         # Establish the socket connection and return the connected socket
