@@ -24,6 +24,7 @@ from ..utils import is_debug_active
 from ..orient import OrientSocket
 from ..serializations import OrientSerialization
 from ..constants import FIELD_INT, FIELD_STRING, INT, STRING, STRINGS, BYTE, BYTES, BOOLEAN, SHORT, LONG
+from ..hexdump import hexdump
 
 # Initialize global variable
 in_transaction = False
@@ -176,11 +177,11 @@ class BaseMessage(object):
             # Dump streams, when debug mode is enabled
             if len(self._output_buffer):
                 print("\nRequest :")
-                #hexdump(self._output_buffer)
+                hexdump(self._output_buffer)
                 # print(repr(self._output_buffer))
             if len(self._input_buffer):
                 print("\nResponse:")
-                #hexdump(self._input_buffer)
+                hexdump(self._input_buffer)
                 # print(repr(self._input_buffer))
 
     def _append(self, field):
