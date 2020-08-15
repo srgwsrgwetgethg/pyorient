@@ -34,7 +34,31 @@ class ConnectMessage(BaseMessage):
         self._append((FIELD_BYTE, CONNECT_OP))
 
     def prepare(self, params=None):
-        pass
+        if isinstance(params, tuple) or isinstance(params, list):
+            try:
+                # Use provided credentials
+                self._user = params[0]
+                self._pass = params[1]
+                self._client_id = params[2]
+            except IndexError:
+                # Use default credentials
+                pass
+
+        # Append header fields
+        self._append((FIELD_STRINGS, [NAME, VERSION]))
+        self._append((FIELD_SHORT, SUPPORTED_PROTOCOL))
+
+        self._append((FIELD_STRING, self._client_id))
+
+        self._append((FIELD_STRING, self._orientSocket.serialization_type))
+        self._append((FIELD_BOOLEAN, self._request_token))
+        self._append((FIELD_BOOLEAN, True))  # support-push
+        self._append((FIELD_BOOLEAN, True))  # collect-stats
+
+        self._append((FIELD_STRING, self._user))
+        self._append((FIELD_STRING, self._pass))
+
+        return super(ConnectMessage, self).prepare()
 
     def fetch_response(self):
         pass

@@ -34,14 +34,15 @@ class GraphUsageTestCase(unittest.TestCase):
     def setUp(self):
         self.client = pyorient.OrientDB("localhost", 2424)
         self.client.connect("root", "root")
-        print("Session token: " + self.client.get_session_token())
+        print("Session token: " + str(self.client.get_session_token()))
         # TODO: Incomplete method
 
-#    def testGraph(self):
-#        # Create Vertex 'Animal'
-#        self.client.command("create class Animal extends V")
-#        # Insert a value
-#        self.client.command("insert into Animal set name = 'rat', specie = 'rodent'")
+    def testGraph(self):
+        # Create Vertex 'Animal'
+        #self.client.command("create class Animal extends V")
+        # Insert a value
+        #self.client.command("insert into Animal set name = 'rat', specie = 'rodent'")
+        self.client.close()
 
 
 if __name__ == '__main__':

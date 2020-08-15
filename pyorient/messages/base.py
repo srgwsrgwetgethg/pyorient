@@ -23,6 +23,7 @@ from ..exceptions import PyOrientBadMethodCallException, PyOrientCommandExceptio
 from ..utils import is_debug_active
 from ..orient import OrientSocket
 from ..serializations import OrientSerialization
+from ..constants import FIELD_INT, FIELD_STRING, INT, STRING, STRINGS, BYTE, BYTES, BOOLEAN, SHORT, LONG
 
 # Initialize global variable
 in_transaction = False
@@ -98,8 +99,22 @@ class BaseMessage(object):
         """
         return self._node_list
 
-    def set_session_token(self):
-        pass
+    def set_session_token(self, token=''):
+        """
+        :param token: Set the request to True to use the token authentication
+        :type token: bool|string
+        :return: self
+        """
+        if token != '' and token is not None:
+            if type(token) is bool:
+                self._request_token = token
+            elif type(token) is str or type(token) is bytes:
+                self._request_token = True
+                self._auth_token = token
+                self._db_opened = True
+                self._connected = True
+                self._update_socket_token()
+        return self
 
     def get_session_token(self):
         pass
@@ -114,7 +129,16 @@ class BaseMessage(object):
         pass
 
     def prepare(self, *args):
-        pass
+        # Session id
+        self._fields_definition.insert(1, (FIELD_INT, self._session_id))
+
+        # Auth token
+        if self._need_token and self._request_token is True:
+            self._fields_definition.insert(2, (FIELD_STRING, self._auth_token))
+
+        # Build output buffer
+        self._output_buffer = b''.join(self._encode_field(x) for x in self._fields_definition)
+        return self
 
     def get_protocol(self):
         if self._protocol < 0:
@@ -137,12 +161,12 @@ class BaseMessage(object):
         :param _continue:
         :return:
         """
-        if len(_continue) is not 0:
+        if len(_continue) != 0:
             self._body = []
             self._decode_body()
             self.dump_streams()
             # already fetched, get last results as cache info
-        elif len(self._body) is 0:
+        elif len(self._body) == 0:
             self._decode_all()
             self.dump_streams()
         return self._body
@@ -185,7 +209,34 @@ class BaseMessage(object):
 
     @staticmethod
     def _encode_field(field):
-        pass
+        # tuple with type
+        t, v = field
+        _content = None
+
+        if t['type'] == INT:
+            _content = struct.pack("!i", v)
+        elif t['type'] == SHORT:
+            _content = struct.pack("!h", v)
+        elif t['type'] == LONG:
+            _content = struct.pack("!q", v)
+        elif t['type'] == BOOLEAN:
+            _content = bytes([1]) if v else bytes([0])
+        elif t['type'] == BYTE:
+            _content = bytes([ord(v)])
+        elif t['type'] == BYTES:
+            _content = struct.pack("!i", len(v)) + v
+        elif t['type'] == STRING:
+            if isinstance(v, str):
+                v = v.encode('utf-8')
+            _content = struct.pack("!i", len(v)) + v
+        elif t['type'] == STRINGS:
+            _content = b''
+            for s in v:
+                if isinstance(s, str):
+                    s = s.encode('utf-8')
+                _content += struct.pack("!i", len(s)) + s
+
+        return _content
 
     def _decode_field(self, _type):
         pass
