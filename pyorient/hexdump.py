@@ -4,23 +4,17 @@
 # <-- removing this magic comment breaks Python 3.4 on Windows
 """
 1. Dump binary data to the following text format:
-
 00000000: 00 00 00 5B 68 65 78 64  75 6D 70 5D 00 00 00 00  ...[hexdump]....
 00000010: 00 11 22 33 44 55 66 77  88 99 AA BB CC DD EE FF  .."3DUfw........
-
 It is similar to the one used by:
 Scapy
 00 00 00 5B 68 65 78 64 75 6D 70 5D 00 00 00 00  ...[hexdump]....
 00 11 22 33 44 55 66 77 88 99 AA BB CC DD EE FF  .."3DUfw........
-
 Far Manager
-000000000: 00 00 00 5B 68 65 78 64 ¦ 75 6D 70 5D 00 00 00 00     [hexdump]
-000000010: 00 11 22 33 44 55 66 77 ¦ 88 99 AA BB CC DD EE FF   ?"3DUfwˆ™ª»Ìİîÿ
-
-
+000000000: 00 00 00 5B 68 65 78 64 Â¦ 75 6D 70 5D 00 00 00 00     [hexdump]
+000000010: 00 11 22 33 44 55 66 77 Â¦ 88 99 AA BB CC DD EE FF   ?"3DUfwË†â„¢ÂªÂ»ÃŒÃÃ®Ã¿
 2. Restore binary data from the formats above as well
    as from less exotic strings of raw hex
-
 """
 
 __version__ = '3.1'
@@ -35,14 +29,12 @@ __history__ = \
      * fix Python 3 installs for systems where UTF-8 is
        not default (Windows), thanks to George Schizas
        (the problem was caused by reading of README.txt)
-
     3.0 (2014-09-07)
      * remove unused int2byte() helper
      * add dehex(text) helper to convert hex string
        to binary data
      * add 'size' argument to dump() helper to specify
        length of chunks
-
     2.0 (2014-02-02)
      * add --restore option to command line mode to get
        binary data back from hex dump
@@ -52,7 +44,6 @@ __history__ = \
        not string
      * hexdump() and dumpgen() now don't return unicode
        strings in Python 2.x when generator is requested
-
     1.0 (2013-12-30)
      * length of address is reduced from 10 to 8
      * hexdump() got new 'result' keyword argument, it
@@ -63,24 +54,19 @@ __history__ = \
        and returns string like "66 6F 72 6D 61 74"
      * new genchunks(mixed, size) function that chunks
        both sequences and file like objects
-
     0.5 (2013-06-10)
      * hexdump is now also a command line utility (no
        restore yet)
-
     0.4 (2013-06-09)
      * fix installation with Python 3 for non English
        versions of Windows, thanks to George Schizas
-
     0.3 (2013-04-29)
      * fully Python 3 compatible
-
     0.2 (2013-04-28)
      * restore() to recover binary data from a hex dump in
        native, Far Manager and Scapy text formats (others
        might work as well)
      * restore() is Python 3 compatible
-
     0.1 (2013-04-28)
      * working hexdump() function for Python 2
     """
@@ -97,7 +83,6 @@ def chunks(seq, size):
        into chunks of given size. If `seq` length is not multiply
        of `size`, the lengh of the last chunk returned will be
        less than requested.
-
        >>> list( chunks([1,2,3,4,5,6,7], 3) )
        [[1, 2, 3], [4, 5, 6], [7]]
     """
@@ -157,7 +142,6 @@ def dump(binary, size=2):
 def dumpgen(data):
     """
     Generator that produces strings:
-
     '00000000: 00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................'
     """
     generator = genchunks(data, 16)
@@ -192,12 +176,9 @@ def dumpgen(data):
 def hexdump(data, result='print'):
     """
     Transform binary data to the hex dump text format:
-
     00000000: 00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
-
       [x] data argument as a binary string
       [x] data argument as a file like object
-
     Returns result depending on the `result` argument:
       'print'     - prints line by line
       'return'    - returns single string
@@ -223,7 +204,6 @@ def restore(dump):
     Restore binary data from a hex dump.
       [x] dump argument as a string
       [ ] dump argument as a line iterator
-
     Supported formats:
       [x] hexdump.hexdump
       [x] Scapy
@@ -341,8 +321,8 @@ def runtest(logfile=None):
 
     far = \
         """
-        000000000: 00 00 00 5B 68 65 78 64 ¦ 75 6D 70 5D 00 00 00 00     [hexdump]
-        000000010: 00 11 22 33 44 55 66 77 ¦ 88 99 0A BB CC DD EE FF   ?"3DUfwˆ™ª»Ìİîÿ
+        000000000: 00 00 00 5B 68 65 78 64 Â¦ 75 6D 70 5D 00 00 00 00     [hexdump]
+        000000010: 00 11 22 33 44 55 66 77 Â¦ 88 99 0A BB CC DD EE FF   ?"3DUfwË†â„¢ÂªÂ»ÃŒÃÃ®Ã¿
         """
     echo('restore far format ', linefeed=False)
     assert bin == restore(far), 'far format check failed'

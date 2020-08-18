@@ -1,80 +1,49 @@
-# -*- coding: utf-8 -*-
-__author__ = 'Ostico <ostico@gmail.com>'
+#  Copyright 2020 Niko Usai <usai.niko@gmail.com>, http://mogui.it; Marc Auberer, https://marc-auberer.de
+#
+#  this file is part of pyorient
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#   limitations under the License.
+
+__author__ = 'mogui <mogui83@gmail.com>, Marc Auberer <marc.auberer@sap.com>'
+
 import unittest
-import os
-
-os.environ['DEBUG'] = "0"
-os.environ['DEBUG_VERBOSE'] = "0"
-
+# import os
 import pyorient
+
+# os.environ['DEBUG'] = "0"
+# os.environ['DEBUG_VERBOSE'] = "0"
 
 
 class GraphUsageTestCase(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(GraphUsageTestCase, self).__init__(*args, **kwargs)
+        # Set attributes to default values
         self.client = None
         self.cluster_info = None
 
     def setUp(self):
-
         self.client = pyorient.OrientDB("localhost", 2424)
         self.client.connect("root", "root")
-
-        db_name = "animals"
-        try:
-            self.client.db_drop(db_name)
-        except pyorient.PyOrientCommandException as e:
-            print(e)
-        finally:
-            db = self.client.db_create(db_name, pyorient.DB_TYPE_GRAPH,
-                                       pyorient.STORAGE_TYPE_MEMORY)
-            pass
-
-        self.cluster_info = self.client.db_open(
-            db_name, "admin", "admin", pyorient.DB_TYPE_GRAPH, ""
-        )
+        print("Session token: " + str(self.client.get_session_token()))
+        # TODO: Incomplete method
 
     def testGraph(self):
+        # Create Vertex 'Animal'
+        #self.client.command("create class Animal extends V")
+        # Insert a value
+        #self.client.command("insert into Animal set name = 'rat', specie = 'rodent'")
+        self.client.close()
 
-        # Create the Vertex Animal
-        self.client.command("create class Animal extends V")
 
-        # Insert a new value
-        self.client.command("insert into Animal set name = 'rat', specie = 'rodent'")
-
-        # query the values 
-        animal = self.client.query("select * from Animal")[0].oRecordData
-        assert 'specie' in animal
-        assert 'name' in animal
-
-        # Create the vertex and insert the food values
-
-        self.client.command('create class Food extends V')
-        self.client.command("insert into Food set name = 'pea', color = 'green'")
-
-        # Create the edge for the Eat action
-        self.client.command('create class Eat extends E')
-
-        # Lets the rat likes to eat pea
-        eat_edges = self.client.command(
-            "create edge Eat from ("
-            "select from Animal where name = 'rat'"
-            ") to ("
-            "select from Food where name = 'pea'"
-            ")"
-        )
-
-        # Who eats the peas?
-        pea_eaters = self.client.command("select expand( in( Eat )) from Food where name = 'pea'")
-        for animal in pea_eaters:
-            print(animal.name, animal.specie)
-        'rat rodent'
-
-        # What each animal eats?
-        animal_foods = self.client.command("select expand( out( Eat )) from Animal")
-        for food in animal_foods:
-            animal = self.client.query(
-                        "select name from ( select expand( in('Eat') ) from Food where name = 'pea' )"
-                    )[0]
-            print(food.name, food.color, animal.name)
-        'pea green rat'
+if __name__ == '__main__':
+    unittest.main()
