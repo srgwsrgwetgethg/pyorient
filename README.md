@@ -1,7 +1,10 @@
 # PyOrient - Python driver for OrientDB
 
 **master**<br>
-[![Build Status](https://travis-ci.org/marcauberer/pyorient.svg?branch=3.1.x)](https://travis-ci.org/marcauberer/pyorient) [![Coverage Status](https://coveralls.io/repos/marcauberer/pyorient/badge.svg?branch=3.1.x&service=github)](https://coveralls.io/github/marcauberer/pyorient?branch=3.1.x)
+[![Build Status](https://travis-ci.org/marcauberer/pyorient.svg?branch=feature/support-py39-odb311
+)](https://travis-ci.org/marcauberer/pyorient) [![Coverage Status](https://coveralls.io/repos/marcauberer/pyorient/badge.svg?branch=feature/support-py39-odb311
+&service=github)](https://coveralls.io/github/marcauberer/pyorient?branch=feature/support-py39-odb311
+)
 
 **develop**<br>
 [![Build Status](https://travis-ci.org/marcauberer/pyorient.svg?branch=develop)](https://travis-ci.org/marcauberer/pyorient) [![Coverage Status](https://coveralls.io/repos/marcauberer/pyorient/badge.svg?branch=develop&service=github)](https://coveralls.io/github/marcauberer/pyorient?branch=develop)
