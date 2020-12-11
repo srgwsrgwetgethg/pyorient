@@ -6,8 +6,9 @@
 **develop**   
 [![Build Status](https://travis-ci.org/mogui/pyorient.svg?branch=develop)](https://travis-ci.org/mogui/pyorient) [![Coverage Status](https://coveralls.io/repos/mogui/pyorient/badge.svg?branch=develop&service=github)](https://coveralls.io/github/mogui/pyorient?branch=develop)
 
-
 [Orientdb](http://www.orientechnologies.com/) driver for python that uses the binary protocol.
+
+> Note: checkout branch `2.2.x` for connecting to OrientDB version `2.2.x` and branch `3.1.x` for OrientDB version `3.1.x`. However, be aware that version `3.1.x` is work in progress and not fully functional yet.
 
 Pyorient works with orientdb version 1.7 and later.
 > **Warning** Some issues are experimented with record_create/record_upload and OrientDB < 2.0. These command are strongly discouraged with these versions
