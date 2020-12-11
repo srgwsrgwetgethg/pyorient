@@ -6,7 +6,7 @@
 
 PyOrient is a community-driven [OrientDB](https://orientdb.org/) driver for python that uses the binary protocol.
 
-> **Note**: If you want to use OrientDB version 2.x or Python 2.7, please use pyorient v1.x and follow the instructions in the python-2.7-odb-2.x branch of this repo
+> **Note**: If you want to use OrientDB version 2.x or Python 2.7, please use pyorient v1.x and follow the instructions in the 2.x branch of this repository
 
 > **NOTICE**: Prior to version 1.4.9 there was a potential SQL injection vulnerability that now is fixed.
 (see [details](https://github.com/mogui/pyorient/pull/172) , [details](https://github.com/mogui/pyorient/pull/182) )
