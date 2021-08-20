@@ -1,19 +1,19 @@
 __author__ = 'Ostico <ostico@gmail.com>'
 
-import struct
 import sys
+import struct
 
-from ..exceptions import PyOrientBadMethodCallException, \
-    PyOrientCommandException, PyOrientNullRecordException
-from ..otypes import OrientRecord, OrientRecordLink, OrientNode
+from pyorient.exceptions import PyOrientBadMethodCallException, PyOrientCommandException, PyOrientNullRecordException
+from pyorient.otypes import OrientRecord, OrientRecordLink, OrientNode
 
-from ..hexdump import hexdump
-from ..constants import BOOLEAN, BYTE, BYTES, CHAR, FIELD_BOOLEAN, FIELD_BYTE, \
+from pyorient.hexdump import hexdump
+from pyorient.constants import BOOLEAN, BYTE, BYTES, CHAR, FIELD_BOOLEAN, FIELD_BYTE, \
     FIELD_INT, FIELD_RECORD, FIELD_SHORT, FIELD_STRING, FIELD_TYPE_LINK, INT, \
     LINK, LONG, RECORD, SHORT, STRING, STRINGS
-from ..utils import is_debug_active
-from ..orient import OrientSocket
-from ..serializations import OrientSerialization
+from pyorient.utils import is_debug_active
+from pyorient.orient import OrientSocket
+from pyorient.serializations import OrientSerialization
+
 
 class BaseMessage(object):
 
@@ -67,9 +67,8 @@ class BaseMessage(object):
         Lazy return of the serialization, we retrive the type from the :class: `OrientSocket <pyorient.orient.OrientSocket>` object
         :return: an Instance of the serializer suitable for decoding or encoding
         """
-        if self._orientSocket.serialization_type==OrientSerialization.Binary:
-            return OrientSerialization.get_impl(self._orientSocket.serialization_type,
-                                                self._orientSocket._props)
+        if self._orientSocket.serialization_type == OrientSerialization.Binary:
+            return OrientSerialization.get_impl(self._orientSocket.serialization_type, self._orientSocket._props)
         else:
             return OrientSerialization.get_impl(self._orientSocket.serialization_type)
 
@@ -86,8 +85,7 @@ class BaseMessage(object):
         """:type : list of [OrientNode]"""
         return self._node_list
 
-
-    def set_session_token( self, token='' ):
+    def set_session_token(self, token=''):
         """
         :param token: Set the request to True to use the token authentication
         :type token: bool|string
@@ -104,7 +102,7 @@ class BaseMessage(object):
                 self._update_socket_token()
         return self
 
-    def get_session_token( self ):
+    def get_session_token(self):
         """
         Retrieve the session token to reuse after
         :return:
@@ -125,22 +123,19 @@ class BaseMessage(object):
         self._fields_definition = []
 
     def prepare(self, *args):
-
-        # session_id
-        self._fields_definition.insert( 1, ( FIELD_INT, self._session_id ) )
-
-
         """
         #  Token authentication handling
         #  we must recognize ConnectMessage and DbOpenMessage messages
         """
+        # session_id
+        self._fields_definition.insert(1, (FIELD_INT, self._session_id))
         if self._need_token and self._request_token is True:
             self._fields_definition.insert(
-                2, ( FIELD_STRING, self._auth_token )
+                2, (FIELD_STRING, self._auth_token)
             )
 
         self._output_buffer = b''.join(
-            self._encode_field( x ) for x in self._fields_definition
+            self._encode_field(x) for x in self._fields_definition
         )
         return self
 
@@ -152,8 +147,7 @@ class BaseMessage(object):
     def _decode_header(self):
 
         # read header's information
-        self._header = [ self._decode_field( FIELD_BYTE ),
-                         self._decode_field( FIELD_INT ) ]
+        self._header = [self._decode_field(FIELD_BYTE), self._decode_field(FIELD_INT)]
 
         # decode message errors and raise an exception
         if self._header[0] == 1:
@@ -162,24 +156,24 @@ class BaseMessage(object):
             exception_class = b''
             exception_message = b''
 
-            more = self._decode_field( FIELD_BOOLEAN )
+            more = self._decode_field(FIELD_BOOLEAN)
 
             while more:
                 # read num bytes by the field definition
-                exception_class += self._decode_field( FIELD_STRING )
-                exception_message += self._decode_field( FIELD_STRING )
-                more = self._decode_field( FIELD_BOOLEAN )
+                exception_class += self._decode_field(FIELD_STRING)
+                exception_message += self._decode_field(FIELD_STRING)
+                more = self._decode_field(FIELD_BOOLEAN)
 
                 if self.get_protocol() > 18:  # > 18 1.6-snapshot
                     # read serialized version of exception thrown on server side
                     # useful only for java clients
-                    serialized_exception = self._decode_field( FIELD_STRING )
+                    serialized_exception = self._decode_field(FIELD_STRING)
                     # trash
                     del serialized_exception
 
             raise PyOrientCommandException(
-                exception_class.decode( 'utf8' ),
-                [ exception_message.decode( 'utf8' ) ]
+                exception_class.decode('utf8'),
+                [exception_message.decode('utf8')]
             )
 
         elif self._header[0] == 3:
@@ -189,17 +183,17 @@ class BaseMessage(object):
             # FIELD_INT (Integer.MIN_VALUE);  # SESSION ID = 2^-31
             # 80: \x50 Request Push 1 byte: Push command id
             push_command_id = self._decode_field(FIELD_BYTE)
-            push_message = self._decode_field( FIELD_STRING )
+            push_message = self._decode_field(FIELD_STRING)
             _, payload = self.get_serializer().decode(push_message)
             if self._push_callback:
                 self._push_callback(push_command_id, payload)
 
-            end_flag = self._decode_field( FIELD_BYTE )
+            end_flag = self._decode_field(FIELD_BYTE)
 
             # this flag can be set more than once
             while end_flag == 3:
-                self._decode_field( FIELD_INT )  # FAKE SESSION ID = 2^-31
-                op_code = self._decode_field( FIELD_BYTE )  # 80: 0x50 Request Push
+                self._decode_field(FIELD_INT)  # FAKE SESSION ID = 2^-31
+                op_code = self._decode_field(FIELD_BYTE)  # 80: 0x50 Request Push
 
                 # REQUEST_PUSH_RECORD	        79
                 # REQUEST_PUSH_DISTRIB_CONFIG	80
@@ -207,18 +201,18 @@ class BaseMessage(object):
                 if op_code == 80:
                     # for node in
                     payload = self.get_serializer().decode(
-                        self._decode_field( FIELD_STRING )
+                        self._decode_field(FIELD_STRING)
                     )  # JSON WITH THE NEW CLUSTER CFG
 
                     # reset the nodelist
                     self._node_list = []
                     for node in payload['members']:
-                        self._node_list.append( OrientNode( node ) )
+                        self._node_list.append(OrientNode(node))
 
-                end_flag = self._decode_field( FIELD_BYTE )
+                end_flag = self._decode_field(FIELD_BYTE)
 
             # Try to set the new session id???
-            self._header[1] = self._decode_field( FIELD_INT )  # REAL SESSION ID
+            self._header[1] = self._decode_field(FIELD_INT)  # REAL SESSION ID
             pass
 
         from .connection import ConnectMessage
@@ -239,7 +233,7 @@ class BaseMessage(object):
     def _decode_body(self):
         # read body
         for field in self._fields_definition:
-            self._body.append( self._decode_field( field ) )
+            self._body.append(self._decode_field(field))
 
         # clear field stack
         self._reset_fields_definition()
@@ -256,25 +250,25 @@ class BaseMessage(object):
         :param _continue:
         :return:
         """
-        if len(_continue) is not 0:
+        if len(_continue) != 0:
             self._body = []
             self._decode_body()
             self.dump_streams()
         # already fetched, get last results as cache info
-        elif len(self._body) is 0:
+        elif len(self._body) == 0:
             self._decode_all()
             self.dump_streams()
         return self._body
 
     def dump_streams(self):
         if is_debug_active():
-            if len( self._output_buffer ):
+            if len(self._output_buffer):
                 print("\nRequest :")
-                hexdump( self._output_buffer )
+                hexdump(self._output_buffer)
                 # print(repr(self._output_buffer))
-            if len( self._input_buffer ):
+            if len(self._input_buffer):
                 print("\nResponse:")
-                hexdump( self._input_buffer )
+                hexdump(self._input_buffer)
                 # print(repr(self._input_buffer))
 
     def _append(self, field):
@@ -282,17 +276,17 @@ class BaseMessage(object):
         @:rtype self: BaseMessage
         @type field: object
         """
-        self._fields_definition.append( field )
+        self._fields_definition.append(field)
         return self
 
     def __str__(self):
 
-        return "\n_output_buffer: \n" + hexdump( self._output_buffer, 'return' ) \
-               + "\n\n_input_buffer: \n" + hexdump( self._input_buffer, 'return' )
+        return "\n_output_buffer: \n" + hexdump(self._output_buffer, 'return') \
+               + "\n\n_input_buffer: \n" + hexdump(self._input_buffer, 'return')
 
     def send(self):
         if self._orientSocket.in_transaction is False:
-            self._orientSocket.write( self._output_buffer )
+            self._orientSocket.write(self._output_buffer)
             self._reset_fields_definition()
         if is_debug_active():
             self.dump_streams()
@@ -313,30 +307,35 @@ class BaseMessage(object):
 
         if t['type'] == INT:
             _content = struct.pack("!i", v)
+
         elif t['type'] == SHORT:
             _content = struct.pack("!h", v)
+
         elif t['type'] == LONG:
             _content = struct.pack("!q", v)
+
         elif t['type'] == BOOLEAN:
             if sys.version_info[0] < 3:
                 _content = chr(1) if v else chr(0)
             else:
                 _content = bytes([1]) if v else bytes([0])
+
         elif t['type'] == BYTE:
             if sys.version_info[0] < 3:
                 _content = v
             else:
                 _content = bytes([ord(v)])
+
         elif t['type'] == BYTES:
             _content = struct.pack("!i", len(v)) + v
+
         elif t['type'] == STRING:
-            if sys.version_info[0] >= 3:
-                if isinstance(v, str):
-                    v = v.encode('utf-8')
-            else:
-                if isinstance(v, unicode):
-                    v = v.encode('utf-8')
+
+            if isinstance(v, str):
+                v = v.encode('utf-8')
+
             _content = struct.pack("!i", len(v)) + v
+
         elif t['type'] == STRINGS:
             _content = b''
             for s in v:
@@ -344,7 +343,7 @@ class BaseMessage(object):
                     if isinstance(s, str):
                         s = s.encode('utf-8')
                 else:
-                    if isinstance(s, unicode):
+                    if isinstance(s, str):
                         s = s.encode('utf-8')
                 _content += struct.pack("!i", len(s)) + s
 
@@ -354,7 +353,7 @@ class BaseMessage(object):
         _value = b""
         # read buffer length and decode value by field definition
         if _type['bytes'] is not None:
-            _value = self._orientSocket.read( _type['bytes'] )
+            _value = self._orientSocket.read(_type['bytes'])
         # if it is a string decode first 4 Bytes as INT
         # and try to read the buffer
         if _type['type'] == STRING or _type['type'] == BYTES:
@@ -363,7 +362,7 @@ class BaseMessage(object):
             if _len == -1 or _len == 0:
                 _decoded_string = b''
             else:
-                _decoded_string = self._orientSocket.read( _len )
+                _decoded_string = self._orientSocket.read(_len)
 
             self._input_buffer += _value
             self._input_buffer += _decoded_string
@@ -373,20 +372,20 @@ class BaseMessage(object):
         elif _type['type'] == RECORD:
 
             # record_type
-            record_type = self._decode_field( _type['struct'][0] )
+            record_type = self._decode_field(_type['struct'][0])
 
-            rid = "#" + str( self._decode_field( _type['struct'][1] ) )
-            rid += ":" + str( self._decode_field( _type['struct'][2] ) )
-            
-            version = self._decode_field( _type['struct'][3] )
-            content = self._decode_field( _type['struct'][4] )
+            rid = "#" + str(self._decode_field(_type['struct'][1]))
+            rid += ":" + str(self._decode_field(_type['struct'][2]))
+
+            version = self._decode_field(_type['struct'][3])
+            content = self._decode_field(_type['struct'][4])
             return {'rid': rid, 'record_type': record_type,
                     'content': content, 'version': version}
 
         elif _type['type'] == LINK:
 
-            rid = "#" + str( self._decode_field( _type['struct'][0] ) )
-            rid += ":" + str( self._decode_field( _type['struct'][1] ) )
+            rid = "#" + str(self._decode_field(_type['struct'][0]))
+            rid += ":" + str(self._decode_field(_type['struct'][1]))
             return rid
 
         else:
@@ -414,7 +413,7 @@ class BaseMessage(object):
         #       cache only. It's not part of the result set but the client
         #       knows that it's available for later access
         """
-        _status = self._decode_field( FIELD_BYTE )  # status
+        _status = self._decode_field(FIELD_BYTE)  # status
 
         while _status != 0:
 
@@ -428,10 +427,10 @@ class BaseMessage(object):
 
                 if _status == 1:  # async record type
                     # async_records.append( _record )  # save in async
-                    self._callback( _record )  # save in async
+                    self._callback(_record)  # save in async
                 elif _status == 2:  # cache
                     # cached_records.append( _record )  # save in cache
-                    self._callback( _record )  # save in cache
+                    self._callback(_record)  # save in cache
 
             except AttributeError:
                 # AttributeError: 'RecordLoadMessage' object has
@@ -440,7 +439,7 @@ class BaseMessage(object):
                     str(self._callback) + " is not a callable function", [])
             finally:
                 # read new status and flush the debug buffer
-                _status = self._decode_field( FIELD_BYTE )  # status
+                _status = self._decode_field(FIELD_BYTE)  # status
 
     def _read_record(self):
         """
@@ -459,22 +458,21 @@ class BaseMessage(object):
         :raise: PyOrientNullRecordException
         :return: OrientRecordLink,OrientRecord
         """
-        marker = self._decode_field( FIELD_SHORT )  # marker
+        marker = self._decode_field(FIELD_SHORT)  # marker
 
-        if marker is -2:
+        if marker == -2:
             raise PyOrientNullRecordException('NULL Record', [])
-        elif marker is -3:
-            res = OrientRecordLink( self._decode_field( FIELD_TYPE_LINK ) )
+        elif marker == -3:
+            res = OrientRecordLink(self._decode_field(FIELD_TYPE_LINK))
         else:
             # read record
-            __res = self._decode_field( FIELD_RECORD )
-            
-            if self._orientSocket.serialization_type==OrientSerialization.Binary:
+            __res = self._decode_field(FIELD_RECORD)
+
+            if self._orientSocket.serialization_type == OrientSerialization.Binary:
                 class_name, data = self.get_serializer().decode(__res['content'])
             else:
                 # bug in orientdb csv serialization in snapshot 2.0
                 class_name, data = self.get_serializer().decode(__res['content'].rstrip())
-
 
             res = OrientRecord(
                 dict(
