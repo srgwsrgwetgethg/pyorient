@@ -5,6 +5,8 @@ PARENT_DIR=$(dirname $(cd "$(dirname "$0")"; pwd))
 CI_DIR="$PARENT_DIR/ci/environment"
 DEFAULT_ORIENT_VERSION="3.2.0"
 
+
+
 # launch simple instance in debug mode with shell hang up
 while [ $# -ne 0 ]; do
   case $1 in
@@ -29,6 +31,8 @@ fi
 ODB_DIR="${CI_DIR}/orientdb-community-${ODB_VERSION}"
 ODB_LAUNCHER="${ODB_DIR}/bin/server.sh"
 ODB_LAUNCHER_SYML="${CI_DIR}/orientdb_current/bin/server.sh"
+
+rm -rf ${ODB_DIR}
 
 echo "=== Initializing CI environment ==="
 
