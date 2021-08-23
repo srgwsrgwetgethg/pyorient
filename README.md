@@ -43,7 +43,7 @@ Pyorient works with orientdb version 1.7 and later.
 
 ## Using this library with OrientDB 3.1+
 As of OrientDB 3.1+, session tokens are now required for interacting with databases. You can find a brief description 
-of how to use [session tokens below](#persistent-connections-session-token), but here is a brief overview of how to
+of how to use [session tokens below](#persistent-connections---session-token), but here is a brief overview of how to
 get started with newer versions of OrientDB:
 ```python
 client = pyorient.OrientDB("localhost", 2424)
