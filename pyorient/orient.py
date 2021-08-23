@@ -23,33 +23,34 @@ from .serializations import OrientSerialization
 
 from .utils import dlog
 
-type_map = {'BOOLEAN' :0,
-            'INTEGER' :1,
-            'SHORT' :2,
-            'LONG' :3,
-            'FLOAT' :4,
-            'DOUBLE' :5,
-            'DATETIME':6,
-            'STRING':7,
-            'BINARY':8,
-            'EMBEDDED':9,
-            'EMBEDDEDLIST':10,
-            'EMBEDDEDSET':11,
-            'EMBEDDEDMAP':12,
-            'LINK' :13,
-            'LINKLIST':14,
-            'LINKSET' :15,
-            'LINKMAP' :16,
-            'BYTE' : 17,
-            'TRANSIENT' : 18,
-            'DATE' :19,
-            'CUSTOM' : 20,
-            'DECIMAL' : 21,
-            'LINKBAG' : 22,
-            'ANY' : 23}
+type_map = {'BOOLEAN': 0,
+            'INTEGER': 1,
+            'SHORT': 2,
+            'LONG': 3,
+            'FLOAT': 4,
+            'DOUBLE': 5,
+            'DATETIME': 6,
+            'STRING': 7,
+            'BINARY': 8,
+            'EMBEDDED': 9,
+            'EMBEDDEDLIST': 10,
+            'EMBEDDEDSET': 11,
+            'EMBEDDEDMAP': 12,
+            'LINK': 13,
+            'LINKLIST': 14,
+            'LINKSET': 15,
+            'LINKMAP': 16,
+            'BYTE': 17,
+            'TRANSIENT': 18,
+            'DATE': 19,
+            'CUSTOM': 20,
+            'DECIMAL': 21,
+            'LINKBAG': 22,
+            'ANY': 23}
+
 
 class OrientSocket(object):
-    '''Class representing the binary connection to the database, it does all the low level comunication
+    """Class representing the binary connection to the database, it does all the low level communication
     And holds information on server version and cluster map
 
     .. DANGER::
@@ -57,9 +58,9 @@ class OrientSocket(object):
 
     :param host: hostname of the server to connect
     :param port: integer port of the server
+    """
 
-    '''
-    def __init__(self, host, port, serialization_type=OrientSerialization.CSV ):
+    def __init__(self, host, port, serialization_type=OrientSerialization.CSV):
 
         self.connected = False
         self.host = host
@@ -80,14 +81,15 @@ class OrientSocket(object):
         return self._socket
 
     def connect(self):
-        '''Connects to the inner socket
-        could raise :class:`PyOrientConnectionPoolException`
-        '''
+        """Connects to the inner socket.
+
+        Could raise :class:`PyOrientConnectionPoolException`
+        """
         dlog("Trying to connect...")
         try:
-            self._socket.settimeout( SOCK_CONN_TIMEOUT )  # 30 secs of timeout
-            self._socket.connect( (self.host, self.port) )
-            _value = self._socket.recv( FIELD_SHORT['bytes'] )
+            self._socket.settimeout(SOCK_CONN_TIMEOUT)  # 30 secs of timeout
+            self._socket.connect((self.host, self.port))
+            _value = self._socket.recv(FIELD_SHORT['bytes'])
 
             if len(_value) != 2:
                 self._socket.close()
@@ -98,18 +100,18 @@ class OrientSocket(object):
 
             self.protocol = struct.unpack('!h', _value)[0]
 
-#            if self.protocol > SUPPORTED_PROTOCOL:
-#                raise PyOrientWrongProtocolVersionException(
-#                    "Protocol version " + str(self.protocol) +
-#                    " is not supported yet by this client.", [])
+            #            if self.protocol > SUPPORTED_PROTOCOL:
+            #                raise PyOrientWrongProtocolVersionException(
+            #                    "Protocol version " + str(self.protocol) +
+            #                    " is not supported yet by this client.", [])
             self.connected = True
+
         except socket.error as e:
             self.connected = False
-            raise PyOrientConnectionException( "Socket Error: %s" % e, [] )
+            raise PyOrientConnectionException("Socket Error: %s" % e, [])
 
     def close(self):
-        '''Close the inner connection
-        '''
+        """Close the inner connection."""
         self.host = ''
         self.port = 0
         self.protocol = -1
@@ -125,6 +127,7 @@ class OrientSocket(object):
         try:
             _, ready_to_write, in_error = select.select(
                 [], [self._socket], [self._socket], 1)
+
         except select.error as e:
             self.connected = False
             self._socket.close()
@@ -133,6 +136,7 @@ class OrientSocket(object):
         if not in_error and ready_to_write:
             self._socket.sendall(buff)
             return len(buff)
+
         else:
             self.connected = False
             self._socket.close()
@@ -153,8 +157,8 @@ class OrientSocket(object):
             # or broken line issues because of
             """:see: https://docs.python.org/2/howto/sockets.html#when-sockets-die """
             try:
-                ready_to_read, _, in_error = \
-                    select.select( [self._socket, ], [], [self._socket, ], 30 )
+                ready_to_read, _, in_error = select.select([self._socket, ], [], [self._socket, ], 30)
+
             except select.error as e:
                 self.connected = False
                 self._socket.close()
@@ -164,24 +168,24 @@ class OrientSocket(object):
 
                 buf = bytearray(_len_to_read)
                 view = memoryview(buf)
+
                 while _len_to_read:
                     n_bytes = self._socket.recv_into(view, _len_to_read)
+
                     if not n_bytes:
                         self._socket.close()
                         # TODO Implement re-connection to another listener
 
-                        raise PyOrientConnectionException(
-                            "Server seems to have went down", [])
+                        raise PyOrientConnectionException("Server seems to have went down", [])
 
                     view = view[n_bytes:]  # slicing views is cheap
                     _len_to_read -= n_bytes
+
                 return bytes(buf)
 
             if len(in_error) > 0:
                 self._socket.close()
-                raise PyOrientConnectionException(
-                    "Socket error", [])
-
+                raise PyOrientConnectionException("Socket error", [])
 
 
 class OrientDB(object):
@@ -200,8 +204,8 @@ class OrientDB(object):
 
 
     """
-    _connection  = None
-    _auth_token  = None
+    _connection = None
+    _auth_token = None
 
     _Messages = dict(
         # Server
@@ -236,6 +240,7 @@ class OrientDB(object):
     def __init__(self, host='localhost', port=2424, serialization_type=OrientSerialization.CSV):
         if not isinstance(host, OrientSocket):
             connection = OrientSocket(host, port, serialization_type)
+
         else:
             connection = host
 
@@ -263,11 +268,12 @@ class OrientDB(object):
         if item.startswith("_"):
             return super(OrientDB, self).__getattr__(item)
 
-        _names = "".join( [i.capitalize() for i in item.split('_')] )
+        _names = "".join([i.capitalize() for i in item.split('_')])
         _Message = self.get_message(_names + "Message")
 
         def wrapper(*args, **kw):
-            return _Message.prepare( args ).send().fetch_response()
+            return _Message.prepare(args).send().fetch_response()
+
         return wrapper
 
     def _reload_clusters(self):
@@ -290,7 +296,7 @@ class OrientDB(object):
         """
         return self._cluster_reverse_map[position]
 
-    def set_session_token( self, token ):
+    def set_session_token(self, token):
         """
         Set true if you want to use token authentication
         :param token: bool
@@ -298,18 +304,14 @@ class OrientDB(object):
         self._auth_token = token
         return self
 
-    def get_session_token( self ):
-        """Returns the auth token of the session
-        """
+    def get_session_token(self):
+        """Returns the auth token of the session."""
         return self._connection.auth_token
-
-
-
 
     # SERVER COMMANDS
 
     def connect(self, user, password, client_id=''):
-        '''Connect to the server without opening any database
+        """Connect to the server without opening any database.
 
         :param user: the username of the user on the server. Example: "root"
         :param password: the password of the user on the server. Example: "37aed6392"
@@ -322,7 +324,7 @@ class OrientDB(object):
             >>> client = OrientDB("localhost", 2424)
             >>> client.connect('root', 'root')
 
-        '''
+        """
         return self.get_message("ConnectMessage") \
             .prepare((user, password, client_id, self._serialization_type)).send().fetch_response()
 
@@ -390,7 +392,7 @@ class OrientDB(object):
             .prepare((name, type)).send().fetch_response()
 
     def db_open(self, db_name, user, password, db_type=DB_TYPE_DOCUMENT, client_id=''):
-        '''
+        """
          Opens a database on the remote OrientDB Server.
          Returns the Session-Id to being reused for all the next calls and the list of configured clusters
 
@@ -407,7 +409,7 @@ class OrientDB(object):
           >>> orient = pyorient.OrientDB('localhost', 2424)
           >>> orient.db_open('asd', 'admin', 'admin')
 
-        '''
+        """
 
         info, clusters, nodes = self.get_message("DbOpenMessage") \
             .prepare((db_name, user, password, db_type, client_id)).send().fetch_response()
@@ -418,14 +420,13 @@ class OrientDB(object):
         self.nodes = nodes
 
         # store property id->property name, type map for binary serialization
-        
+
         self.update_properties()
-        
+
         return self.clusters
 
     def db_reload(self):
-        """
-        Reloads current connected database
+        """Reloads current connected database
 
         :return: renewed array of :class:`OrientCluster <pyorient.types.OrientCluster>`
         """
@@ -435,19 +436,19 @@ class OrientDB(object):
         self.update_properties()
         return self.clusters
 
-        
     def update_properties(self):
-        '''
-        This method fetches the global Properties from the server. The properties are used
+        """This method fetches the global Properties from the server.
+
+        The properties are used
         for deserializing based on propery index if using binary serialization. This method
         should be called after any manual command that may result in modifications to the
         properties table, for example, "Create property ... " or "Create class .." followed
         by "Create vertex set ... "
-        '''
-        if self._serialization_type==OrientSerialization.Binary:
-            self._connection._props = {x['id']:[x['name'], type_map[x['type']]] for x in
-                        self.command("select from #0:1")[0].oRecordData['globalProperties']}
-        
+        """
+        if self._serialization_type == OrientSerialization.Binary:
+            self._connection._props = {x['id']: [x['name'], type_map[x['type']]] for x in
+                                       self.command("select from #0:1")[0].oRecordData['globalProperties']}
+
     def shutdown(self, *args):
         return self.get_message("ShutdownMessage") \
             .prepare(args).send().fetch_response()
@@ -456,23 +457,22 @@ class OrientDB(object):
 
     def gremlin(self, *args):
         return self.get_message("CommandMessage") \
-            .prepare(( QUERY_GREMLIN, ) + args).send().fetch_response()
+            .prepare((QUERY_GREMLIN,) + args).send().fetch_response()
 
     def command(self, *args):
-        return self.get_message("CommandMessage") \
-            .prepare(( QUERY_CMD, ) + args).send().fetch_response()
+        return self.get_message("CommandMessage").prepare((QUERY_CMD,) + args).send().fetch_response()
 
     def batch(self, *args):
         return self.get_message("CommandMessage") \
-            .prepare(( QUERY_SCRIPT, ) + args).send().fetch_response()
+            .prepare((QUERY_SCRIPT,) + args).send().fetch_response()
 
     def query(self, *args):
         return self.get_message("CommandMessage") \
-            .prepare(( QUERY_SYNC, ) + args).send().fetch_response()
+            .prepare((QUERY_SYNC,) + args).send().fetch_response()
 
     def query_async(self, *args):
         return self.get_message("CommandMessage") \
-            .prepare(( QUERY_ASYNC, ) + args).send().fetch_response()
+            .prepare((QUERY_ASYNC,) + args).send().fetch_response()
 
     def data_cluster_add(self, *args):
         return self.get_message("DataClusterAddMessage") \
@@ -538,8 +538,7 @@ class OrientDB(object):
                 else:
                     token = self._auth_token
 
-                message_instance = _Message(self._connection)\
-                    .set_session_token(token)
+                message_instance = _Message(self._connection).set_session_token(token)
                 message_instance._push_callback = self._push_received
                 return message_instance
 

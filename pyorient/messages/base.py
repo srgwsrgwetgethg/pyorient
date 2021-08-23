@@ -92,30 +92,30 @@ class BaseMessage(object):
         :return: self
         """
         if token != '' and token is not None:
+
             if type(token) is bool:
                 self._request_token = token
+
             elif type(token) is str or type(token) is bytes:
                 self._request_token = True
                 self._auth_token = token
                 self._db_opened = True
                 self._connected = True
                 self._update_socket_token()
+
         return self
 
     def get_session_token(self):
-        """
-        Retrieve the session token to reuse after
-        :return:
-        """
+        """Retrieve the session token to reuse after."""
         return self._auth_token
 
     def _update_socket_id(self):
-        """Force update of socket id from inside the class"""
+        """Force update of socket id from inside the class."""
         self._orientSocket.session_id = self._session_id
         return self
 
     def _update_socket_token(self):
-        """Force update of socket token from inside the class"""
+        """Force update of socket token from inside the class."""
         self._orientSocket.auth_token = self._auth_token
         return self
 
@@ -147,21 +147,26 @@ class BaseMessage(object):
     def _decode_header(self):
 
         # read header's information
-        self._header = [self._decode_field(FIELD_BYTE), self._decode_field(FIELD_INT)]
+        # https://orientdb.org/docs/3.2.x/internals/Network-Binary-Protocol.html
+        self._header = [
+            self._decode_field(FIELD_BYTE),  # Success status of the request if succeeded or failed (0=OK, 1=ERROR)
+            self._decode_field(FIELD_INT)  # 4 bytes: Session-Id (Integer)
+        ]
 
         # decode message errors and raise an exception
         if self._header[0] == 1:
 
             # Parse the error
-            exception_class = b''
-            exception_message = b''
+            # The format is: [(1)(exception-class:string)(exception-message:string)]*(0)(serialized-exception:bytes)]
+            exception_class = b""
+            exception_message = b""
 
             more = self._decode_field(FIELD_BOOLEAN)
 
             while more:
                 # read num bytes by the field definition
-                exception_class += self._decode_field(FIELD_STRING)
-                exception_message += self._decode_field(FIELD_STRING)
+                exception_class += self._decode_field(FIELD_STRING)  # (exception-class:string)
+                exception_message += self._decode_field(FIELD_STRING)  # (exception-message:string)
                 more = self._decode_field(FIELD_BOOLEAN)
 
                 if self.get_protocol() > 18:  # > 18 1.6-snapshot
@@ -171,6 +176,7 @@ class BaseMessage(object):
                     # trash
                     del serialized_exception
 
+            self.close()
             raise PyOrientCommandException(
                 exception_class.decode('utf8'),
                 [exception_message.decode('utf8')]
@@ -223,8 +229,8 @@ class BaseMessage(object):
             TODO: change this check avoiding cross import,
             importing a subclass in a super class is bad
         """
-        if not isinstance(self, (ConnectMessage, DbOpenMessage)) \
-                and self._request_token is True:
+
+        if not isinstance(self, (ConnectMessage, DbOpenMessage)) and self._request_token is True:
             token_refresh = self._decode_field(FIELD_STRING)
             if token_refresh != b'':
                 self._auth_token = token_refresh
@@ -255,9 +261,11 @@ class BaseMessage(object):
             self._decode_body()
             self.dump_streams()
         # already fetched, get last results as cache info
+
         elif len(self._body) == 0:
             self._decode_all()
             self.dump_streams()
+
         return self._body
 
     def dump_streams(self):
@@ -266,6 +274,7 @@ class BaseMessage(object):
                 print("\nRequest :")
                 hexdump(self._output_buffer)
                 # print(repr(self._output_buffer))
+
             if len(self._input_buffer):
                 print("\nResponse:")
                 hexdump(self._input_buffer)
@@ -350,17 +359,21 @@ class BaseMessage(object):
         return _content
 
     def _decode_field(self, _type):
+        """Decodes the part of the response as designated by "_type"."""
         _value = b""
+        field_type = _type["type"]
         # read buffer length and decode value by field definition
         if _type['bytes'] is not None:
             _value = self._orientSocket.read(_type['bytes'])
+
         # if it is a string decode first 4 Bytes as INT
         # and try to read the buffer
-        if _type['type'] == STRING or _type['type'] == BYTES:
+        if field_type == STRING or field_type == BYTES:
 
             _len = struct.unpack('!i', _value)[0]
             if _len == -1 or _len == 0:
                 _decoded_string = b''
+
             else:
                 _decoded_string = self._orientSocket.read(_len)
 
@@ -369,7 +382,7 @@ class BaseMessage(object):
 
             return _decoded_string
 
-        elif _type['type'] == RECORD:
+        elif field_type == RECORD:
 
             # record_type
             record_type = self._decode_field(_type['struct'][0])
@@ -379,10 +392,9 @@ class BaseMessage(object):
 
             version = self._decode_field(_type['struct'][3])
             content = self._decode_field(_type['struct'][4])
-            return {'rid': rid, 'record_type': record_type,
-                    'content': content, 'version': version}
+            return {'rid': rid, 'record_type': record_type, 'content': content, 'version': version}
 
-        elif _type['type'] == LINK:
+        elif field_type == LINK:
 
             rid = "#" + str(self._decode_field(_type['struct'][0]))
             rid += ":" + str(self._decode_field(_type['struct'][1]))
@@ -391,17 +403,23 @@ class BaseMessage(object):
         else:
             self._input_buffer += _value
 
-            if _type['type'] == BOOLEAN:
-                return ord(_value) == 1
-            elif _type['type'] == BYTE:
+            if field_type == BOOLEAN:
+                print(_value)
+                return bool(ord(_value))
+
+            elif field_type == BYTE:
                 return ord(_value)
-            elif _type['type'] == CHAR:
+
+            elif field_type == CHAR:
                 return _value
-            elif _type['type'] == SHORT:
+
+            elif field_type == SHORT:
                 return struct.unpack('!h', _value)[0]
-            elif _type['type'] == INT:
+
+            elif field_type == INT:
                 return struct.unpack('!i', _value)[0]
-            elif _type['type'] == LONG:
+
+            elif field_type == LONG:
                 return struct.unpack('!q', _value)[0]
 
     def _read_async_records(self):

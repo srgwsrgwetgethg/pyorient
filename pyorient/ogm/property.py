@@ -16,11 +16,16 @@ import sys
 
 
 class Property(PropertyWhat):
-    num_instances = 0 # Basis for ordering property instances
+    num_instances = 0  # Basis for ordering property instances
 
-    def __init__(self, name=None, nullable=True
-                 , default=None, indexed=False, unique=False
-                 , mandatory=False, readonly=False):
+    def __init__(self,
+                 name=None,
+                 nullable=True,
+                 default=None,
+                 indexed=False,
+                 unique=False,
+                 mandatory=False,
+                 readonly=False):
         """Create a database class property.
 
         :param name: Overrides name of class attribute used for property
@@ -82,9 +87,11 @@ class Property(PropertyWhat):
     def __format__(self, format_spec):
         return repr(self.context_name())
 
+
 class UUID:
     def __str__(self):
         return 'UUID()'
+
 
 class PropertyEncoder:
     PROHIBITED_NAME_CHARS = set(''.join([string.whitespace, '"\'']))

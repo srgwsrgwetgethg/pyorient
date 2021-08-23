@@ -1,6 +1,7 @@
 from pyorient.ogm.operators import (IdentityOperand, RelativeOperand, Operand, InstanceOfMixin)
 from pyorient.ogm.query_utils import ArgConverter
 
+
 class What(object):
     """Specify 'what' a Query retrieves."""
     Out = 0
@@ -107,118 +108,156 @@ class What(object):
         self.name_override = name_override
         return self
 
+
 def eval_(exp):
     return FunctionWhat(What.Eval, (exp,))
+
 
 def coalesce(*params):
     return FunctionWhat(What.Coalesce, params)
 
+
 def if_(cond, con, alt):
     return FunctionWhat(What.If, (cond, con, alt))
+
 
 def ifnull(field, value):
     return FunctionWhat(What.IfNull, (field, value))
 
+
 def expand(field):
     return FunctionWhat(What.Expand, (field,))
+
 
 def first(field):
     return FunctionWhat(What.First, (field,))
 
+
 def last(field):
     return FunctionWhat(What.Last, (field,))
+
 
 def count(field):
     return FunctionWhat(What.Count, (field,))
 
+
 def min(field, *more):
     return FunctionWhat(What.Min, [field] + [f for f in more])
+
 
 def max(field, *more):
     return FunctionWhat(What.Max, [field] + [f for f in more])
 
+
 def avg(field):
     return FunctionWhat(What.Avg, (field,))
+
 
 def mode(field):
     return FunctionWhat(What.Mode, (field,))
 
+
 def median(field):
     return FunctionWhat(What.Median, (field,))
+
 
 def percentile(field, *quantiles):
     return FunctionWhat(What.Percentile, (field, quantiles))
 
+
 def variance(field):
     return FunctionWhat(What.Variance, (field,))
+
 
 def stddev(field):
     return FunctionWhat(What.StdDev, (field,))
 
+
 def sum(field):
     return FunctionWhat(What.Sum, (field,))
+
 
 def date(date_str, fmt=None, tz=None):
     return FunctionWhat(What.Date, (date_str, fmt, tz))
 
+
 def sysdate(fmt=None, tz=None):
     return FunctionWhat(What.SysDate, (fmt, tz))
 
+
 def format(fmt_str, *args):
     return FunctionWhat(What.Format, (fmt_str, args))
+
 
 class EdgeDirection(object):
     OUT = 0
     IN = 0
     BOTH = 0
 
+
 def dijkstra(src, dst, weight_field, direction=EdgeDirection.OUT):
     return FunctionWhat(What.Dijkstra, (src, dst, weight_field, direction))
+
 
 def shortest_path(src, dst, direction=EdgeDirection.BOTH, edge_class=None):
     return FunctionWhat(What.ShortestPath, (src, dst, direction, edge_class))
 
+
 def distance(x_field, y_field, x_value, y_value):
     return FunctionWhat(What.Distance, (x_field, y_field, x_value, y_value))
+
 
 def distinct(field):
     return FunctionWhat(What.Distinct, (field,))
 
+
 def unionall(field, *more):
     return FunctionWhat(What.UnionAll, (field, more))
+
 
 def intersect(field, *more):
     return FunctionWhat(What.Intersect, (field, more))
 
+
 def difference(field, *more):
     return FunctionWhat(What.Difference, (field, more))
+
 
 def symmetric_difference(field, *more):
     return FunctionWhat(What.SymmetricDifference, (field, more))
 
+
 def set(field):
     return FunctionWhat(What.Set, (field,))
+
 
 def list(field):
     return FunctionWhat(What.List, (field,))
 
+
 def map(key, value):
     return FunctionWhat(What.Map, (key, value))
+
 
 def traversed_element(index, items=1):
     return FunctionWhat(What.TraversedElement, (index, items))
 
+
 def traversed_edge(index, items=1):
     return FunctionWhat(What.TraversedEdge, (index, items))
+
 
 def traversed_vertex(index, items=1):
     return FunctionWhat(What.TraversedVertex, (index, items))
 
+
 def any():
     return FunctionWhat(What.Any, tuple())
 
+
 def all():
     return FunctionWhat(What.All, tuple())
+
 
 class ChainableWhat(What):
     def __init__(self, chain, props):
@@ -234,7 +273,9 @@ class ChainableWhat(What):
 
         return self
 
+
 # Method mixins, according to type
+
 
 class MethodWhatMixin(object):
     def asDecimal(self):
@@ -271,10 +312,12 @@ class MethodWhatMixin(object):
     def type(self):
         return MethodWhat.prepare_next_link(self, StringMethodWhat, (What.Type,))
 
+
 class RecordMethodMixin(object):
     def toJSON(self, format_rules=None):
         # TODO Figure out the structure of format_rules
         return MethodWhat.prepare_next_link(self, StringMethodWhat, (What.ToJSON,))
+
 
 class StringMethodMixin(object):
     def charAt(self, position):
@@ -290,7 +333,7 @@ class StringMethodMixin(object):
         return MethodWhat.prepare_next_link(self, StringMethodWhat, (What.Left, (length,)))
 
     def length(self):
-        return MethodWhat.prepare_next_link(self, MethodWhat, (What.Length,tuple()))
+        return MethodWhat.prepare_next_link(self, MethodWhat, (What.Length, tuple()))
 
     def normalize(self, form, pattern_matching):
         return MethodWhat.prepare_next_link(self, StringMethodWhat, (What.Normalize, (form, pattern_matching)))
@@ -316,6 +359,7 @@ class StringMethodMixin(object):
     def toUpperCase(self):
         return MethodWhat.prepare_next_link(self, StringMethodWhat, (What.ToUpperCase, tuple()))
 
+
 class CollectionMethodMixin(object):
     def asMap(self):
         return MethodWhat.prepare_next_link(self, MapMethodWhat, (What.AsMap, tuple()))
@@ -331,6 +375,7 @@ class CollectionMethodMixin(object):
     def size(self):
         return MethodWhat.prepare_next_link(self, MethodWhat, (What.Size,))
 
+
 class MapMethodMixin(CollectionMethodMixin):
     def keys(self):
         return MethodWhat.prepare_next_link(self, StringMethodWhat, (What.Keys,))
@@ -338,10 +383,12 @@ class MapMethodMixin(CollectionMethodMixin):
     def values(self):
         return MethodWhat.prepare_next_link(self, StringMethodWhat, (What.Values,))
 
+
 class WhatFilterMixin(object):
     def __getitem__(self, filter_exp):
         self.chain.append((What.WhatFilter, filter_exp))
         return self
+
 
 # Concrete method chaining types
 class MethodWhat(MethodWhatMixin, Operand, ChainableWhat):
@@ -370,6 +417,7 @@ class MethodWhat(MethodWhatMixin, Operand, ChainableWhat):
 
         return current
 
+
 class ElementWhat(RecordMethodMixin, WhatFilterMixin, MethodWhat):
     def at_rid(self):
         return MethodWhat.prepare_next_link(self, AtRid, (What.AtRid,))
@@ -384,6 +432,7 @@ class ElementWhat(RecordMethodMixin, WhatFilterMixin, MethodWhat):
             '{} is not callable here.'.format(
                 repr(self.props[-1]) if self.props else 'Query function'))
 
+
 class PropertyWhat(MethodWhatMixin, Operand, ChainableWhat):
     def __init__(self, chain, props):
         super(PropertyWhat, self).__init__(chain, props)
@@ -394,10 +443,12 @@ class PropertyWhat(MethodWhatMixin, Operand, ChainableWhat):
         self.method_chain = self.props
         return self
 
+
 # Can't make assumptions about type of property
 # Provide all method mixins, and assume user knows what they're doing
 class AnyPropertyWhat(StringMethodMixin, MapMethodMixin, PropertyWhat):
     pass
+
 
 class VertexWhatMixin(object):
     def out(self, *labels):
@@ -427,6 +478,7 @@ class VertexWhatMixin(object):
         chain.append((What.BothE, labels))
         return EdgeWhat(chain)
 
+
 class VertexWhat(VertexWhatMixin, ElementWhat):
     def __init__(self, chain):
         super(VertexWhat, self).__init__(chain, [])
@@ -439,11 +491,13 @@ class VertexWhatBegin(object):
     def __call__(self, *labels):
         return VertexWhat([(self.func, labels)])
 
+
 out = VertexWhatBegin(What.Out)
 in_ = VertexWhatBegin(What.In)
 both = VertexWhatBegin(What.Both)
 outV = VertexWhatBegin(What.OutV)
 inV = VertexWhatBegin(What.InV)
+
 
 class EdgeWhatMixin(object):
     def outV(self):
@@ -455,6 +509,7 @@ class EdgeWhatMixin(object):
         chain = self.chain
         chain.append((What.InV,))
         return VertexWhat(chain)
+
 
 class EdgeWhat(EdgeWhatMixin, ElementWhat):
     def __init__(self, chain):
@@ -468,20 +523,26 @@ class EdgeWhatBegin(object):
     def __call__(self, *labels):
         return EdgeWhat([(self.func, labels)])
 
+
 outE = EdgeWhatBegin(What.OutE)
 inE = EdgeWhatBegin(What.InE)
 bothE = EdgeWhatBegin(What.BothE)
 
+
 class StringMethodWhat(StringMethodMixin, MethodWhat):
     pass
+
 
 class CollectionMethodWhat(CollectionMethodMixin, MethodWhat):
     pass
 
+
 class MapMethodWhat(MapMethodMixin, MethodWhat):
     pass
 
-class QV(VertexWhatMixin, EdgeWhatMixin, WhatFilterMixin, RecordMethodMixin, StringMethodMixin, MapMethodMixin, MethodWhat):
+
+class QV(VertexWhatMixin, EdgeWhatMixin, WhatFilterMixin, RecordMethodMixin, StringMethodMixin, MapMethodMixin,
+         MethodWhat):
     def __init__(self, name):
         super(QV, self).__init__([(What.WhatLet, (name,))], [])
 
@@ -497,18 +558,25 @@ class QV(VertexWhatMixin, EdgeWhatMixin, WhatFilterMixin, RecordMethodMixin, Str
     def parent_current(cls):
         return cls('parent').QV('current')
 
+
 class FunctionWhat(MethodWhat):
     def __init__(self, func, args):
         super(FunctionWhat, self).__init__([(func, args)], [])
 
+
 class CustomFunction(MethodWhat):
     """Call custom server-side functions from queries."""
+
     def __init__(self, name, expected, *args):
         super(CustomFunction, self).__init__([(What.WhatCustom, name, expected, args)], [])
 
+
 def custom_function_handle(name, expected=(ArgConverter.Value,)):
     return lambda *args: CustomFunction(name, expected, *args)
+
+
 # Record attributes
+
 
 class RecordAttribute(object):
     @classmethod
@@ -516,6 +584,7 @@ class RecordAttribute(object):
         attribute = cls()
         setattr(attribute, '_immutable', True)
         return attribute
+
 
 class AtThis(RecordAttribute, InstanceOfMixin, RecordMethodMixin, StringMethodWhat):
     def __init__(self, chain=[(What.AtThis, tuple())], props=[]):
@@ -526,21 +595,26 @@ class AtRid(RecordAttribute, StringMethodWhat):
     def __init__(self, chain=[(What.AtRid, tuple())], props=[]):
         super(AtRid, self).__init__(chain, props)
 
+
 class AtClass(RecordAttribute, InstanceOfMixin, RecordMethodMixin, StringMethodWhat):
     def __init__(self, chain=[(What.AtClass, tuple())], props=[]):
         super(AtClass, self).__init__(chain, props)
+
 
 class AtVersion(RecordAttribute, MethodWhat):
     def __init__(self, chain=[(What.AtVersion, tuple())], props=[]):
         super(AtVersion, self).__init__(chain, props)
 
+
 class AtSize(RecordAttribute, MethodWhat):
     def __init__(self, chain=[(What.AtSize, tuple())], props=[]):
         super(AtSize, self).__init__(chain, props)
 
+
 class AtType(RecordAttribute, StringMethodWhat):
     def __init__(self, chain=[(What.AtType, tuple())], props=[]):
         super(AtType, self).__init__(chain, props)
+
 
 at_this = AtThis.create_immutable()
 at_class = AtClass.create_immutable()
