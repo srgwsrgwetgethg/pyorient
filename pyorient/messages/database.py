@@ -104,6 +104,7 @@ class BaseMessage(object):
         """
         if self._orientSocket.serialization_type == OrientSerialization.Binary:
             return OrientSerialization.get_impl(self._orientSocket.serialization_type, self._orientSocket._props)
+
         else:
             return OrientSerialization.get_impl(self._orientSocket.serialization_type)
 
@@ -184,11 +185,11 @@ class BaseMessage(object):
 
         We must check for ConnectMessage and DbOpenMessage messages.
         """
-        if not isinstance(self, (ConnectMessage, DbOpenMessage)) and self._request_token is True:
-            token_refresh = self._decode_field(FIELD_STRING)
-            if token_refresh != b'':
-                self._auth_token = token_refresh
-                self._update_socket_token()
+
+        token_refresh = self._decode_field(FIELD_STRING)
+        if token_refresh != b'':
+            self._auth_token = token_refresh
+            self._update_socket_token()
 
     def _decode_header(self):
 
@@ -197,8 +198,10 @@ class BaseMessage(object):
         self._header = [
             self._decode_field(FIELD_BYTE),  # Success status of the request if succeeded or failed (0=OK, 1=ERROR)
             self._decode_field(FIELD_INT),  # 4 bytes: Session-Id (Integer)
-            self._token_refresh_check()  # As of OrientDB 3.1, all sessions are token based
         ]
+
+        if not isinstance(self, (ConnectMessage, DbOpenMessage)) and self._request_token is True:
+            self._token_refresh_check()
 
         # decode message errors and raise an exception
         if self._header[0] == 1:

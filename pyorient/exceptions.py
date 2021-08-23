@@ -33,6 +33,7 @@ class PyOrientException(Exception):
             "OSerializationException": PyOrientSerializationException,
             "OStorageException": PyOrientStorageException,
             "OTooBigIndexKeyException": PyOrientTooBigIndexKeyException,
+            "OTokenSecurityException": PyOrientSecurityException,
             "OTransactionException": PyOrientTransactionException,
             "OValidationException": PyOrientValidationException,
             "OWriteCacheException": PyOrientWriteCacheException,
