@@ -1,18 +1,16 @@
 __author__ = 'Ostico <ostico@gmail.com>'
 
-import sys
 import os
 import unittest
 
 from pyorient.exceptions import *
-from pyorient import OrientSocket
 from pyorient.messages.database import *
 from pyorient.messages.commands import *
 from pyorient.messages.cluster import *
+from pyorient.messages.database import ConnectMessage
 from pyorient.messages.records import *
-from pyorient.messages.connection import *
 from pyorient.constants import DB_TYPE_DOCUMENT, QUERY_SYNC, \
-    STORAGE_TYPE_PLOCAL, DB_TYPE_GRAPH, STORAGE_TYPE_MEMORY
+    DB_TYPE_GRAPH, STORAGE_TYPE_MEMORY
 
 os.environ['DEBUG'] = "0"
 os.environ['DEBUG_VERBOSE'] = "0"

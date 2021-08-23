@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'Ostico <ostico@gmail.com>'
 
-from .base import BaseMessage
+from .database import BaseMessage
 from ..exceptions import PyOrientBadMethodCallException, \
     PyOrientConnectionException
 from ..otypes import OrientRecord

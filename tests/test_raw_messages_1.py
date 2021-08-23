@@ -4,9 +4,9 @@ import unittest
 
 from pyorient.exceptions import PyOrientCommandException, PyOrientException, PyOrientDatabaseException
 from pyorient import OrientSocket
-from pyorient.messages.connection import ConnectMessage, ShutdownMessage
-from pyorient.messages.database import DbExistsMessage, DbOpenMessage, DbCreateMessage,\
- DbDropMessage, DbReloadMessage, DbCloseMessage, DbSizeMessage, DbListMessage
+from pyorient.messages.connection import ShutdownMessage
+from pyorient.messages.database import DbExistsMessage, DbOpenMessage, DbCreateMessage, \
+    DbDropMessage, DbReloadMessage, DbCloseMessage, DbSizeMessage, DbListMessage, ConnectMessage
 from pyorient.messages.commands import CommandMessage
 from pyorient.constants import DB_TYPE_DOCUMENT, QUERY_SYNC, QUERY_GREMLIN, \
     STORAGE_TYPE_PLOCAL

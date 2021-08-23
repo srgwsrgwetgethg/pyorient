@@ -1,15 +1,11 @@
 __author__ = 'Ostico <ostico@gmail.com>'
 
-import sys
 import os
 import unittest
 
-
-from pyorient.exceptions import *
-from pyorient import OrientSocket
-from pyorient.messages.connection import *
 from pyorient.messages.database import *
 from pyorient.messages.commands import *
+from pyorient.messages.database import ConnectMessage
 from pyorient.messages.records import *
 from pyorient.constants import *
 

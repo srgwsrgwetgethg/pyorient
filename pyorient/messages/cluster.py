@@ -4,7 +4,7 @@ __author__ = 'Ostico <ostico@gmail.com>'
 
 from pyorient.exceptions import PyOrientBadMethodCallException
 
-from .base import BaseMessage
+from .database import BaseMessage
 from ..constants import CLUSTER_TYPE_PHYSICAL, DATA_CLUSTER_ADD_OP, \
     DATA_CLUSTER_COUNT_OP, FIELD_BOOLEAN, FIELD_BYTE, FIELD_LONG, FIELD_SHORT, \
     FIELD_STRING, DATA_CLUSTER_DATA_RANGE_OP, DATA_CLUSTER_DROP_OP, CLUSTER_TYPES

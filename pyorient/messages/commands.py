@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .base import BaseMessage
+from .database import BaseMessage
 from .records import RecordUpdateMessage, RecordDeleteMessage, RecordCreateMessage
 from ..exceptions import PyOrientBadMethodCallException
 from ..constants import COMMAND_OP, FIELD_BOOLEAN, FIELD_BYTE, FIELD_CHAR, \

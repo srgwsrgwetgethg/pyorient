@@ -209,7 +209,7 @@ class OrientDB(object):
 
     _Messages = dict(
         # Server
-        ConnectMessage="pyorient.messages.connection",
+        ConnectMessage="pyorient.messages.database",
         ShutdownMessage="pyorient.messages.connection",
 
         DbOpenMessage="pyorient.messages.database",
