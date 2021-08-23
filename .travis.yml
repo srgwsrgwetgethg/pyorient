@@ -9,6 +9,11 @@ install:
 - pip install pyorient_native
 - "./ci/start-ci.sh $ORIENTDB_VERSION"
 
+addons:
+  apt:
+    packages:
+      - oracle-java8-set-default
+
 cache:
   directories:
   - ./ci/environment/
