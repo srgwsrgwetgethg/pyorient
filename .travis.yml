@@ -1,15 +1,9 @@
 sudo: false
 language: python
-dist: trusty
 python:
 - '3.8'
 
-addons:
-  apt:
-    update: true
-    packages:
-      - oracle-java8-installer
-      - oracle-java8-set-default
+jdk: openjdk8
 
 install:
 - pip install coveralls
