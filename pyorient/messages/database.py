@@ -63,7 +63,7 @@ class BaseMessage(object):
 
         # handles token auth
         self._auth_token = self._orientSocket.auth_token
-        self._request_token = False
+        self._request_token = True  # Tokens required as of OrientDB v3.1
 
         self._header = []
         """:type : list of [str]"""
@@ -226,7 +226,6 @@ class BaseMessage(object):
                     # trash
                     del serialized_exception
 
-            self.close()
             raise PyOrientCommandException(
                 exception_class.decode('utf8'),
                 [exception_message.decode('utf8')]

@@ -51,6 +51,7 @@ class PyOrientException(Exception):
     def __str__(self):
         if self.errors:
             return "%s - %s" % (Exception.__str__(self), self.errors[0])
+
         else:
             return Exception.__str__(self)
 

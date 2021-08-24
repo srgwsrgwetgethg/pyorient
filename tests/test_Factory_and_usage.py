@@ -38,7 +38,7 @@ class CommandTestCase(unittest.TestCase):
                 .send().fetch_response()
             assert True
 
-        except pyorient.PyOrientCommandException as e:
+        except pyorient.PyOrientStorageException as e:
             print(str(e))
 
         finally:
@@ -60,7 +60,7 @@ class CommandTestCase(unittest.TestCase):
                 .send().fetch_response()
             clusters = factory.get_message(pyorient.DB_RELOAD).prepare() \
                 .send().fetch_response()
-        except pyorient.PyOrientCommandException:
+        except pyorient.PyOrientStorageException:
             pass
 
         from random import randint
@@ -117,7 +117,7 @@ class CommandTestCase(unittest.TestCase):
             (factory.get_message(pyorient.DB_DROP)).prepare([db_name]) \
                 .send().fetch_response()
             assert True
-        except pyorient.PyOrientCommandException as e:
+        except pyorient.PyOrientStorageException as e:
             print(str(e))
         finally:
             (factory.get_message(pyorient.DB_CREATE)).prepare(
@@ -211,7 +211,7 @@ class CommandTestCase(unittest.TestCase):
             (factory.get_message(pyorient.DB_DROP)).prepare([db_name, pyorient.STORAGE_TYPE_MEMORY]) \
                 .send().fetch_response()
 
-        except pyorient.PyOrientCommandException as e:
+        except pyorient.PyOrientStorageException as e:
             print(str(e))
 
         finally:

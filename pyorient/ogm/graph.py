@@ -83,20 +83,23 @@ class Graph(object):
         """Drop entire database."""
         config = self.config
         self.client.connect(config.user, config.cred)
+
+        dropped_db = db_name or config.db_name
+
         try:
-            dropped_db = db_name or config.db_name
-            self.client.db_drop(db_name or config.db_name
-                                , storage or config.storage)
-        except:
+            self.client.db_drop(db_name or config.db_name,
+                                storage or config.storage)
+
+        except pyorient.PyOrientStorageException:
             return False
+
         finally:
             last_db = self._last_db
             if last_db and last_db is not dropped_db:
                 # In case we aren't dropping the currently-configured database,
                 # ensure we are still able to use it.
-                self.client.db_open(last_db
-                                    , self._last_user, self._last_cred)
-        return True
+                self.client.db_open(last_db, self._last_user, self._last_cred)
+            return True
 
     def include(self, registry):
         """Update Graph's registry, when database schema already exists.

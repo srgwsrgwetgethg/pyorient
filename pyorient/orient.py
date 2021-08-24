@@ -241,8 +241,7 @@ class OrientDB(object):
     def __init__(self,
                  host: Union[str, OrientSocket] = 'localhost',
                  port: int = 2424,
-                 serialization_type: OrientSerialization = OrientSerialization.CSV,
-                 session_token: bool = True):
+                 serialization_type: OrientSerialization = OrientSerialization.CSV,):
         """Initialization of client.
 
         Parameters
@@ -277,9 +276,6 @@ class OrientDB(object):
         self._cluster_reverse_map = None
         self._connection = connection
         self._serialization_type = serialization_type
-
-        if session_token:
-            self.set_session_token(True)  # Session tokens are required as of OrientDB 3.1+
 
     def close(self):
         self._connection.close()

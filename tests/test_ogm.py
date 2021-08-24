@@ -17,12 +17,14 @@ from pyorient.ogm.what import expand, in_, out, distinct, sysdate
 AnimalsNode = declarative_node()
 AnimalsRelationship = declarative_relationship()
 
+
 class Animal(AnimalsNode):
     element_type = 'animal'
     element_plural = 'animals'
 
     name = String(nullable=False, unique=True)
-    specie = String(nullable=False)
+    species = String(nullable=False)
+
 
 class Food(AnimalsNode):
     element_type = 'food'
@@ -31,6 +33,7 @@ class Food(AnimalsNode):
     name = String(nullable=False, unique=True)
     color = String(nullable=False)
 
+
 class Beverage(AnimalsNode):
     element_type = 'beverage'
     element_plural = 'beverages'
@@ -38,16 +41,20 @@ class Beverage(AnimalsNode):
     name = String(nullable=False, unique=True)
     color = String(nullable=False)
 
+
 class Eats(AnimalsRelationship):
     label = 'eats'
     modifier = String()
 
+
 class Dislikes(AnimalsRelationship):
     label = 'dislikes'
+
 
 class Drinks(AnimalsRelationship):
     label = 'drinks'
     modifier = String()
+
 
 class OGMAnimalsTestCaseBase(unittest.TestCase):
     def __init__(self, *args, **kwargs):
@@ -55,9 +62,7 @@ class OGMAnimalsTestCaseBase(unittest.TestCase):
         self.g = None
 
     def setUp(self):
-        g = self.g = Graph(Config.from_url('animals', 'root', 'root',
-                                           initial_drop=True))
-
+        g = self.g = Graph(Config.from_url('animals', 'root', 'root', initial_drop=True))
 
         g.create_all(AnimalsNode.registry)
         g.create_all(AnimalsRelationship.registry)
@@ -68,8 +73,8 @@ class OGMAnimalsTestCaseBase(unittest.TestCase):
 
         g = self.g
 
-        rat = g.animals.create(name='rat', specie='rodent')
-        mouse = g.animals.create(name='mouse', specie='rodent')
+        rat = g.animals.create(name='rat', species='rodent')
+        mouse = g.animals.create(name='mouse', species='rodent')
         queried_rat = g.query(Animal).filter(
             Animal.name.endswith('at') | (Animal.name == 'tiger')).one()
 
@@ -78,8 +83,10 @@ class OGMAnimalsTestCaseBase(unittest.TestCase):
         invalid_query_args = {'name': 'rat', 'name="rat" OR 1': 1}
         try:
             g.animals.query(**invalid_query_args).all()
+
         except:
             pass
+
         else:
             assert False and 'Invalid params did not raise an exception!'
 
@@ -89,7 +96,7 @@ class OGMAnimalsTestCaseBase(unittest.TestCase):
         assert mouse == g.get_element(mouse._id)
 
         try:
-            rat2 = g.animals.create(name='rat', specie='rodent')
+            rat2 = g.animals.create(name='rat', species='rodent')
         except:
             pass
         else:
@@ -131,7 +138,7 @@ class OGMAnimalsTestCaseBase(unittest.TestCase):
         # Who eats the peas?
         pea_eaters = g.foods.query(name='pea').what(expand(in_(Eats)))
         for animal in pea_eaters:
-            print(animal.name, animal.specie)
+            print(animal.name, animal.species)
 
         # Which animals eat each food
         # FIXME Currently calling all() here, as iteration over expand()
@@ -166,25 +173,25 @@ def get_colored_eaten_foods(animal, color) {
 
         pea_eaters = g.gremlin('get_eaters_of', 'pea')
         for animal in pea_eaters:
-            print(animal.name, animal.specie) # 'rat rodent' # 'mouse rodent'
+            print(animal.name, animal.species) # 'rat rodent' # 'mouse rodent'
 
         rat_cuisine = g.gremlin('get_foods_eaten_by', (rat,))
         for food in rat_cuisine:
             print(food.name, food.color) # 'pea green'
 
         batch = g.batch()
-        batch['zombie'] = batch.animals.create(name='zombie',specie='undead')
+        batch['zombie'] = batch.animals.create(name='zombie',species='undead')
         batch['brains'] = batch.foods.create(name='brains', color='grey')
         # Retry up to twenty times
         batch[:] = batch.eats.create(batch[:'zombie'], batch[:'brains']).retry(20)
 
-        batch['unicorn'] = batch.animals.create(name='unicorn', specie='mythical')
+        batch['unicorn'] = batch.animals.create(name='unicorn', species='mythical')
         batch['unknown'] = batch.foods.create(name='unknown', color='rainbow')
         batch['mystery_diet'] = batch[:'unicorn'](Eats) > batch[:'unknown']
 
         # Commits and clears batch
         zombie = batch['$zombie']
-        assert zombie.specie == 'undead'
+        assert zombie.species == 'undead'
 
 
 class OGMAnimalsRegistryTestCase(OGMAnimalsTestCaseBase):
@@ -193,7 +200,7 @@ class OGMAnimalsRegistryTestCase(OGMAnimalsTestCaseBase):
         schema_registry = g.build_mapping(declarative_node(), declarative_relationship(), auto_plural=True)
         assert all(c in schema_registry for c in ['animal', 'food', 'eats'])
 
-        assert type(schema_registry['animal'].specie) == String
+        assert type(schema_registry['animal'].species) == String
 
         # Plurals not communicated to schema; postprocess registry before
         # include() if you have a better solution than auto_plural.
@@ -204,8 +211,8 @@ class OGMAnimalsRegistryTestCase(OGMAnimalsTestCaseBase):
 
         assert set(g.registry.keys()) == set(['food', 'dislikes', 'eats', 'beverage', 'animal', 'drinks'])
 
-        rat = g.animal.create(name='rat', specie='rodent')
-        mouse = g.animal.create(name='mouse', specie='rodent')
+        rat = g.animal.create(name='rat', species='rodent')
+        mouse = g.animal.create(name='mouse', species='rodent')
         rat_class = g.registry['animal']
         queried_rat = g.query(rat_class).filter(
             rat_class.name.endswith('at') | (rat_class.name == 'tiger')).one()
