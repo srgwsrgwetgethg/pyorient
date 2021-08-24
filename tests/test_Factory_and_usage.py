@@ -21,7 +21,6 @@ class CommandTestCase(unittest.TestCase):
     def test_hi_level_interface(self):
 
         factory = pyorient.OrientDB('localhost', 2424)
-        factory.set_session_token(True)
 
         factory.get_message(pyorient.CONNECT).prepare(("root", "root")) \
             .send().fetch_response()
@@ -33,12 +32,15 @@ class CommandTestCase(unittest.TestCase):
             .send().fetch_response()
 
         print("Before %r" % exists)
+
         try:
             (factory.get_message(pyorient.DB_DROP)).prepare([db_name]) \
                 .send().fetch_response()
             assert True
+
         except pyorient.PyOrientCommandException as e:
             print(str(e))
+
         finally:
             (factory.get_message(pyorient.DB_CREATE)).prepare(
                 (db_name, pyorient.DB_TYPE_GRAPH, pyorient.STORAGE_TYPE_MEMORY)
@@ -100,7 +102,6 @@ class CommandTestCase(unittest.TestCase):
     def test_hi_level_transaction(self):
 
         factory = pyorient.OrientDB('localhost', 2424)
-        factory.set_session_token(True)
 
         factory.get_message(pyorient.CONNECT).prepare(("root", "root")) \
             .send().fetch_response()
@@ -199,7 +200,6 @@ class CommandTestCase(unittest.TestCase):
         connection = pyorient.OrientSocket("localhost", 2424)
 
         factory = pyorient.OrientDB(connection)
-        factory.set_session_token(True)
 
         session_id = (factory.get_message(pyorient.CONNECT)).prepare(("root", "root")) \
             .send().fetch_response()
@@ -213,6 +213,7 @@ class CommandTestCase(unittest.TestCase):
 
         except pyorient.PyOrientCommandException as e:
             print(str(e))
+
         finally:
             (factory.get_message(pyorient.DB_CREATE)).prepare(
                 (db_name, pyorient.DB_TYPE_GRAPH, pyorient.STORAGE_TYPE_MEMORY)

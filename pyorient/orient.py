@@ -3,6 +3,7 @@
 @author: Ostico <ostico@gmail.com>
 """
 from __future__ import print_function
+from typing import Union
 
 __author__ = 'Ostico <ostico@gmail.com>'
 
@@ -237,7 +238,25 @@ class OrientDB(object):
         TxCommitMessage="pyorient.messages.commands",
     )
 
-    def __init__(self, host='localhost', port=2424, serialization_type=OrientSerialization.CSV):
+    def __init__(self,
+                 host: Union[str, OrientSocket] = 'localhost',
+                 port: int = 2424,
+                 serialization_type: OrientSerialization = OrientSerialization.CSV,
+                 session_token: bool = True):
+        """Initialization of client.
+
+        Parameters
+        ----------
+        host : Union[str, OrientSocket]
+            OrientDB server host. Can use "localhost", IP address, or initialized OrientSocket
+        port : int
+            Port for OrientDB server. Defaults to 2424
+        serialization_type : OrientSerialization
+            Type of serialization for output data. Defaults to OrientSerialization.CSV, can also be
+            OrientSerialization.Binary
+        session_token : bool
+            Initialize client with session token. Defaults to True since it is necessary starting with OrientDB v3.1
+        """
         if not isinstance(host, OrientSocket):
             connection = OrientSocket(host, port, serialization_type)
 
@@ -258,6 +277,9 @@ class OrientDB(object):
         self._cluster_reverse_map = None
         self._connection = connection
         self._serialization_type = serialization_type
+
+        if session_token:
+            self.set_session_token(True)  # Session tokens are required as of OrientDB 3.1+
 
     def close(self):
         self._connection.close()
@@ -289,16 +311,16 @@ class OrientDB(object):
         return self._cluster_map[cluster_name.lower()]
 
     def get_class_name(self, position):
-        """
-        Get cluster name given a cluster position (id)
+        """Get cluster name given a cluster position (id).
+
         :param position: cluster id
         :return: string cluster name
         """
         return self._cluster_reverse_map[position]
 
     def set_session_token(self, token):
-        """
-        Set true if you want to use token authentication
+        """Set true if you want to use token authentication.
+
         :param token: bool
         """
         self._auth_token = token
