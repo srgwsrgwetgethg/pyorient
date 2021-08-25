@@ -43,11 +43,10 @@ Pyorient works with orientdb version 1.7 and later.
 
 ## Using this library with OrientDB 3.1+
 As of OrientDB 3.1+, session tokens are now required for interacting with databases. You can find a brief description 
-of how to use [session tokens below](#persistent-connections---session-token), but here is a brief overview of how to
-get started with newer versions of OrientDB:
+of how to use [session tokens below](#persistent-connections---session-token) for older version, but now they are 
+enabled by default when a client is initialized:
 ```python
 client = pyorient.OrientDB("localhost", 2424)
-client.set_session_token(True)
 client.db_open("GratefulDeadConcerts", "admin", "admin")
 client.command("create class my_class if not exists extends V")
 client.command(f"insert into my_class (row_id, work, holiday) values (1, 'banker', 'christmas')")
@@ -59,7 +58,6 @@ methods will require creating a session ID in order to perform (e.g. checking th
 a new one):
 ```python
 client = pyorient.OrientDB("localhost", 2424)
-client.set_session_token(True)
 client.db_exists("GratefulDeadConcerts")
 # Results in an error: pyorient.exceptions.PyOrientSecurityException: 
 # com.orientechnologies.orient.enterprise.channel.binary.OTokenSecurityException - missing session and token
@@ -69,7 +67,6 @@ To create new databases, or perform other restricted actions, you must connect t
 credentials:
 ```python
 client = pyorient.OrientDB("localhost", 2424)
-client.set_session_token(True)
 client.connect("root", "rootPassword")
 client.db_exists("GratefulDeadConcerts")
 # True
