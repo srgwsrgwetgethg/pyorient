@@ -79,6 +79,9 @@ if [ ! -d "$ODB_DIR/bin" ]; then
 
   cp ${PARENT_DIR}/ci/orientdb-server-log.properties "${ODB_DIR}/config/"
 
+  echo "cp ${PARENT_DIR}/ci/security.json \"${ODB_DIR}/config/\""
+  cp ${PARENT_DIR}/ci/security.json ${ODB_DIR}/config/
+
   if [ ! -d "${ODB_DIR}/databases" ]; then
     mkdir ${ODB_DIR}/databases
   fi
