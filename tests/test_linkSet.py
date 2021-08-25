@@ -159,20 +159,22 @@ class LinkSetTestCase(unittest.TestCase):
         DB.command("insert into V set key1 = 'row2'")
         DB.command("insert into V set key1 = 'row3'")
 
-        o1 = pyorient.OrientRecordLink("9:0")
-        o2 = pyorient.OrientRecordLink("9:1")
-        o3 = pyorient.OrientRecordLink("9:2")
-        o4 = pyorient.OrientRecordLink("9:3")
+        # V is cluster 9 in OrientDB 2.2, in ODB 3.1+ it is cluster 10
+        o1 = pyorient.OrientRecordLink("10:0")
+        o2 = pyorient.OrientRecordLink("10:1")
+        o3 = pyorient.OrientRecordLink("10:2")
+        o4 = pyorient.OrientRecordLink("10:3")
         lList = [o1, o2, o3, o4]
 
         tx = DB.tx_commit()
-        rec = DB.record_create(9, {'test': lList, 'key1': 'row4'})  # 9:4
-
         tx.begin()
+
+        rec = DB.record_create(-1, {"@V": {'test': lList, 'key1': 'row4'}})  # 10:4
+
         tx.attach(rec)
         tx.commit()
 
         # Removed major version check
-        _rec = DB.record_load(rec._cluster_id)
+        _rec = DB.record_load(rec._record_content._rid)
         assert len(_rec.oRecordData['test']) == 4
         assert isinstance(_rec.oRecordData['test'][0], pyorient.OrientRecordLink)

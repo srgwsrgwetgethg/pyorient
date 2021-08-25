@@ -76,6 +76,9 @@ cp -a ${PARENT_DIR}/tests/default_databases/VehicleHistoryGraph "${ODB_DIR}/data
 echo "cp ${PARENT_DIR}/ci/orientdb-distr-hazelcast.xml \"${ODB_DIR}/config/\""
 cp ${PARENT_DIR}/ci/orientdb-distr-hazelcast.xml ${ODB_DIR}/config/
 
+echo "cp ${PARENT_DIR}/ci/security.json \"${ODB_DIR}/config/\""
+cp ${PARENT_DIR}/ci/security.json ${ODB_DIR}/config/
+
 # Start OrientDB in background.
 echo "--- Starting 2 instance of OrientDB ---"
 CONFIG_FILE="${PARENT_DIR}/ci/orientdb-distr-node-1.xml" ${ODB_LAUNCHER} </dev/null &>/dev/null &
