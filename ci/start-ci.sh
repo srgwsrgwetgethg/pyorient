@@ -88,11 +88,11 @@ else
 fi
 
 echo "Installing databases: "
-echo "cp -a ${PARENT_DIR}/tests/default_databases/GratefulDeadConcerts \"${ODB_DIR}/databases/\""
-cp -a ${PARENT_DIR}/tests/default_databases/GratefulDeadConcerts "${ODB_DIR}/databases/"
+echo "cp -a ${PARENT_DIR}/ci/default_databases/GratefulDeadConcerts \"${ODB_DIR}/databases/\""
+cp -a ${PARENT_DIR}/ci/default_databases/GratefulDeadConcerts "${ODB_DIR}/databases/"
 
-echo "cp -a ${PARENT_DIR}/tests/default_databases/VehicleHistoryGraph \"${ODB_DIR}/databases/\""
-cp -a ${PARENT_DIR}/tests/default_databases/VehicleHistoryGraph "${ODB_DIR}/databases/"
+echo "cp -a ${PARENT_DIR}/ci/default_databases/VehicleHistoryGraph \"${ODB_DIR}/databases/\""
+cp -a ${PARENT_DIR}/ci/default_databases/VehicleHistoryGraph "${ODB_DIR}/databases/"
 
 # Configure link to the orientdb_current version
 rm -rf ${CI_DIR}/orientdb_current
