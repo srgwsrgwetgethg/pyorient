@@ -15,6 +15,7 @@ from os.path import isfile
 
 ServerVersion = namedtuple('orientdb_version', ['major', 'minor', 'build'])
 
+
 class Graph(object):
     def __init__(self, config, user=None, cred=None, strict=False):
         """Connect to OrientDB graph database, creating the database if
@@ -73,7 +74,6 @@ class Graph(object):
 
         cluster_map = self.client.db_open(db_name, user, cred)
 
-
         self.server_version = ServerVersion(
             self.client.version.major, self.client.version.minor, self.client.version.build)
 
@@ -83,20 +83,23 @@ class Graph(object):
         """Drop entire database."""
         config = self.config
         self.client.connect(config.user, config.cred)
+
+        dropped_db = db_name or config.db_name
+
         try:
-            dropped_db = db_name or config.db_name
-            self.client.db_drop(db_name or config.db_name
-                                   , storage or config.storage)
-        except:
+            self.client.db_drop(db_name or config.db_name,
+                                storage or config.storage)
+
+        except pyorient.PyOrientStorageException:
             return False
+
         finally:
             last_db = self._last_db
             if last_db and last_db is not dropped_db:
                 # In case we aren't dropping the currently-configured database,
                 # ensure we are still able to use it.
-                self.client.db_open(last_db
-                                    , self._last_user, self._last_cred)
-        return True
+                self.client.db_open(last_db, self._last_user, self._last_cred)
+            return True
 
     def include(self, registry):
         """Update Graph's registry, when database schema already exists.
@@ -209,19 +212,19 @@ class Graph(object):
         return registry
 
     _GROOVY_GET_DB = \
-    '''def db = new com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx("remote:{}:{}/{}");
+        '''def db = new com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx("remote:{}:{}/{}");
     db.open("{}", "{}");
     '''
 
     _GROOVY_NULL_LISTENER = \
-    '''def listener = new com.orientechnologies.orient.core.command.OCommandOutputListener() {
+        '''def listener = new com.orientechnologies.orient.core.command.OCommandOutputListener() {
         @Override
         public void onMessage(String iText) {}
     };
     '''
 
     _GROOVY_TRY = \
-    '''try {{
+        '''try {{
     {}
     {}
     }} finally {{
@@ -250,7 +253,8 @@ class Graph(object):
         import_optionals = ''
 
         if preserve_cluster_ids is not None:
-            import_optionals += 'dbImport.setPreserveClusterIDs({});'.format('true' if preserve_cluster_ids else 'false')
+            import_optionals += 'dbImport.setPreserveClusterIDs({});'.format(
+                'true' if preserve_cluster_ids else 'false')
         if delete_rid_mapping is not None:
             import_optionals += 'dbImport.setDeleteRIDMapping({});'.format('true' if delete_rid_mapping else 'false')
         if self.server_version >= (1, 6, 1):
@@ -265,7 +269,7 @@ class Graph(object):
             'def dbImport = new com.orientechnologies.orient.core.db.tool.ODatabaseImport(db, "{}", listener);'
 
         import_commands = \
-        '''{}
+            '''{}
         {}
         dbImport.importDatabase();
         dbImport.close();
@@ -321,7 +325,8 @@ class Graph(object):
         if include_info is not None:
             export_optionals += 'export.setIncludeInfo({});'.format('true' if include_info else 'false')
         if cluster_definitions is not None:
-            export_optionals += 'export.setIncludeClusterDefinitions({});'.format('true' if cluster_definitions else 'false')
+            export_optionals += 'export.setIncludeClusterDefinitions({});'.format(
+                'true' if cluster_definitions else 'false')
         if schema is not None:
             export_optionals += 'export.setIncludeSchema({});'.format('true' if schema else 'false')
         if security is not None:
@@ -343,7 +348,7 @@ class Graph(object):
             'def export = new com.orientechnologies.orient.core.db.tool.ODatabaseExport(db, "{}", listener);'
 
         export_commands = \
-        '''{}
+            '''{}
         {} {}
         export.exportDatabase();
         export.close();
@@ -375,7 +380,6 @@ class Graph(object):
     #     """
     #     pass
 
-
     def clear_registry(self):
         """Clear the registry and associated brokers.
 
@@ -390,7 +394,6 @@ class Graph(object):
 
         self.registry = {}
         self.props_from_db = {}
-
 
     def create_class(self, cls):
         """Add vertex or edge class to database.
@@ -413,7 +416,7 @@ class Graph(object):
         else:
             extends = ','.join([base.registry_name for base in bases])
 
-        #if not self.client.command(
+        # if not self.client.command(
         #    'SELECT FROM ( SELECT expand( classes ) FROM metadata:schema ) WHERE name = "{}"'
         #        .format(cls_name)):
         try:
@@ -423,9 +426,9 @@ class Graph(object):
             # Class already exists
             pass
 
-        props = sorted([(k,v) for k,v in cls.__dict__.items()
+        props = sorted([(k, v) for k, v in cls.__dict__.items()
                         if isinstance(v, Property)]
-                       , key=lambda p:p[1].instance_idx)
+                       , key=lambda p: p[1].instance_idx)
         for prop_name, prop_value in props:
             value_name = prop_value.name
             if value_name:
@@ -458,45 +461,31 @@ class Graph(object):
                         linked_to = type_linked_to.__name__
 
             try:
-                self.client.command(
-                    'CREATE PROPERTY {0} {1} {2}'
-                        .format(class_prop
-                                , type(prop_value).__name__
-                                , linked_to or ''))
+                self.client.command(f"CREATE PROPERTY {class_prop} {type(prop_value).__name__} {linked_to or ''}")
+
             except pyorient.PyOrientCommandException:
                 # Property already exists
                 pass
 
             if prop_value.default is not None:
-                if self.server_version >= (2,1,0):
-                    self.client.command(
-                        'ALTER PROPERTY {0} DEFAULT {1}'
-                            .format(class_prop,
-                                    PropertyEncoder.encode_value(prop_value.default)))
+                self.client.command(
+                    f'ALTER PROPERTY {class_prop} DEFAULT {PropertyEncoder.encode_value(prop_value.default)}'
+                )
+
+            self.client.command(f'ALTER PROPERTY {class_prop} NOTNULL {str(not prop_value.nullable).lower()}')
 
             self.client.command(
-                    'ALTER PROPERTY {0} NOTNULL {1}'
-                        .format(class_prop
-                                , str(not prop_value.nullable).lower()))
+                'ALTER PROPERTY {} MANDATORY {}'
+                    .format(class_prop
+                            , str(prop_value.mandatory).lower()))
 
-            self.client.command(
-                    'ALTER PROPERTY {} MANDATORY {}'
-                        .format(class_prop
-                                , str(prop_value.mandatory).lower()))
-
-            self.client.command(
-                    'ALTER PROPERTY {} READONLY {}'
-                        .format(class_prop
-                                , str(prop_value.readonly).lower()))
+            self.client.command(f'ALTER PROPERTY {class_prop} READONLY {str(prop_value.readonly).lower()}')
 
             # TODO Add support for composite indexes
             if prop_value.indexed:
                 try:
-                    self.client.command(
-                        'CREATE INDEX {0} {1}'
-                            .format(class_prop
-                                    , 'UNIQUE' if prop_value.unique
-                                      else 'NOTUNIQUE'))
+                    self.client.command(f"CREATE INDEX {class_prop} {'UNIQUE' if prop_value.unique else 'NOTUNIQUE'}")
+
                 except pyorient.PyOrientIndexException:
                     # Index already exists
                     pass
@@ -518,11 +507,9 @@ class Graph(object):
         *will* still throw if subclassed.
         """
         if ignore_instances:
-            self.client.command(
-                'DROP CLASS {} UNSAFE'.format(cls.registry_name))
+            self.client.command(f'DROP CLASS {cls.registry_name} UNSAFE')
         else:
-            self.client.command(
-                'DROP CLASS {}'.format(cls.registry_name))
+            self.client.command(f'DROP CLASS {cls.registry_name}')
 
     def create_all(self, registry):
         """Create classes in database for all classes in registry.
@@ -542,12 +529,10 @@ class Graph(object):
             self.drop_class(cls, ignore_instances=True)
 
     def create_vertex(self, vertex_cls, **kwargs):
-        result = self.client.command(
-            to_unicode(self.create_vertex_command(vertex_cls, **kwargs)))[0]
+        result = self.client.command(self.create_vertex_command(vertex_cls, **kwargs))[0]
 
         props = result.oRecordData
-        return vertex_cls.from_graph(self, result._rid,
-                                     self.props_from_db[vertex_cls](props))
+        return vertex_cls.from_graph(self, result._rid, self.props_from_db[vertex_cls](props))
 
     def create_vertex_command(self, vertex_cls, **kwargs):
         class_name = vertex_cls.registry_name
@@ -557,28 +542,29 @@ class Graph(object):
             set_clause = u' SET {}'.format(
                 u','.join(u'{}={}'.format(
                     PropertyEncoder.encode_name(k), PropertyEncoder.encode_value(v))
-                    for k, v in db_props.items()))
+                          for k, v in db_props.items()))
         else:
             set_clause = u''
 
         return VertexCommand(
             u'CREATE VERTEX {}{}'.format(class_name, set_clause))
 
-    def delete_vertex(self, vertex, where = None, limit=None, batch=None):
+    def delete_vertex(self, vertex, where=None, limit=None, batch=None):
         # TODO FIXME Parse delete result
         result = self.client.command(to_unicode(self.delete_vertex_command(vertex, where, limit, batch)))
 
-    def delete_vertex_command(self, vertex, where=None, limit=None, batch=None):
+    @staticmethod
+    def delete_vertex_command(vertex, where=None, limit=None, batch=None):
         vertex_clause = getattr(vertex, 'registry_name', None) or vertex
 
         delete_clause = ''
         if where is not None:
-            where_clause = ''
+
             if isinstance(where, dict):
                 where_clause = u' and '.join(u'{0}={1}'
-                    .format(PropertyEncoder.encode_name(k)
-                            , PropertyEncoder.encode_value(v))
-                    for k,v in where.items())
+                                             .format(PropertyEncoder.encode_name(k)
+                                                     , PropertyEncoder.encode_value(v))
+                                             for k, v in where.items())
             else:
                 where_clause = Query.filter_string(where)
 
@@ -588,16 +574,14 @@ class Graph(object):
         if batch is not None:
             delete_clause += ' BATCH {}'.format(batch)
 
-        return VertexCommand(
-            u'DELETE VERTEX {}{}'.format(
-                vertex_clause, delete_clause))
+        return VertexCommand(f'DELETE VERTEX {vertex_clause}{delete_clause}')
 
     def create_edge(self, edge_cls, from_vertex, to_vertex, **kwargs):
         result = self.client.command(
             to_unicode(self.create_edge_command(edge_cls
-                                     , from_vertex
-                                     , to_vertex
-                                     , **kwargs)))[0]
+                                                , from_vertex
+                                                , to_vertex
+                                                , **kwargs)))[0]
 
         return self.edge_from_record(result, edge_cls)
 
@@ -609,7 +593,7 @@ class Graph(object):
             set_clause = u' SET {}'.format(
                 u','.join(u'{}={}'.format(
                     PropertyEncoder.encode_name(k), PropertyEncoder.encode_value(v))
-                    for k, v in db_props.items()))
+                          for k, v in db_props.items()))
         else:
             set_clause = ''
 
@@ -650,7 +634,7 @@ class Graph(object):
             set_clause = u' SET {}'.format(
                 u','.join(u'{}={}'.format(
                     PropertyEncoder.encode_name(k), PropertyEncoder.encode_value(v))
-                    for k, v in db_props.items()))
+                          for k, v in db_props.items()))
         else:
             set_clause = ''
 
@@ -679,8 +663,8 @@ class Graph(object):
         :param edge_classes: Filter by these edges
         """
         records = self.client.query('SELECT EXPAND( outE({0}) ) FROM {1}'
-            .format(','.join(Graph.coerce_class_names_to_quoted(edge_classes))
-                    , self.coerce_class_names(from_)), -1)
+                                    .format(','.join(Graph.coerce_class_names_to_quoted(edge_classes))
+                                            , self.coerce_class_names(from_)), -1)
         return [self.edge_from_record(r) for r in records] \
             if records else []
 
@@ -691,8 +675,8 @@ class Graph(object):
         :param edge_classes: Filter by these edges
         """
         records = self.client.query('SELECT EXPAND( inE({0}) ) FROM {1}'
-            .format(','.join(Graph.coerce_class_names_to_quoted(edge_classes))
-                    , self.coerce_class_names(to)), -1)
+                                    .format(','.join(Graph.coerce_class_names_to_quoted(edge_classes))
+                                            , self.coerce_class_names(to)), -1)
         return [self.edge_from_record(r) for r in records] \
             if records else []
 
@@ -703,8 +687,8 @@ class Graph(object):
         :param edge_classes: Filter by these edges
         """
         records = self.client.query('SELECT EXPAND( bothE({0}) ) FROM {1}'
-            .format(','.join(Graph.coerce_class_names_to_quoted(edge_classes))
-                    , self.coerce_class_names(from_to)), -1)
+                                    .format(','.join(Graph.coerce_class_names_to_quoted(edge_classes))
+                                            , self.coerce_class_names(from_to)), -1)
         return [self.edge_from_record(r) for r in records] \
             if records else []
 
@@ -715,8 +699,8 @@ class Graph(object):
         :param edge_classes: Filter by these edges
         """
         records = self.client.query('SELECT EXPAND( out({0}) ) FROM {1}'
-            .format(','.join(Graph.coerce_class_names_to_quoted(edge_classes))
-                    , self.coerce_class_names(from_)), -1)
+                                    .format(','.join(Graph.coerce_class_names_to_quoted(edge_classes))
+                                            , self.coerce_class_names(from_)), -1)
         return [self.vertex_from_record(v) for v in records] \
             if records else []
 
@@ -727,8 +711,8 @@ class Graph(object):
         :param edge_classes: Filter by these edges
         """
         records = self.client.query('SELECT EXPAND( in({0}) ) FROM {1}'
-            .format(','.join(Graph.coerce_class_names_to_quoted(edge_classes))
-                    , self.coerce_class_names(to)), -1)
+                                    .format(','.join(Graph.coerce_class_names_to_quoted(edge_classes))
+                                            , self.coerce_class_names(to)), -1)
         return [self.vertex_from_record(v) for v in records] \
             if records else []
 
@@ -739,27 +723,27 @@ class Graph(object):
         :param edge_classes: Filter by these edges
         """
         records = self.client.query('SELECT EXPAND( both({0}) )FROM {1}'
-            .format(','.join(Graph.coerce_class_names_to_quoted(edge_classes))
-                    , self.coerce_class_names(from_to)), -1)
+                                    .format(','.join(Graph.coerce_class_names_to_quoted(edge_classes))
+                                            , self.coerce_class_names(from_to)), -1)
         return [self.vertex_from_record(v) for v in records] \
             if records else []
 
     # The following mostly intended for internal use
 
-    def vertex_from_record(self, record, vertex_cls = None):
+    def vertex_from_record(self, record, vertex_cls=None):
         if not vertex_cls:
             vertex_cls = self.registry.get(record._class)
 
         props = record.oRecordData
         return vertex_cls.from_graph(self
-             , record._rid
-             , self.props_from_db[vertex_cls](props)) if vertex_cls \
+                                     , record._rid
+                                     , self.props_from_db[vertex_cls](props)) if vertex_cls \
             else Vertex.from_graph(self, record._rid, props)
 
     def vertexes_from_records(self, records):
         return [self.vertex_from_record(record) for record in records]
 
-    def edge_from_record(self, record, edge_cls = None):
+    def edge_from_record(self, record, edge_cls=None):
         props = record.oRecordData
 
         in_hash = None
@@ -777,8 +761,8 @@ class Graph(object):
         if not edge_cls:
             edge_cls = self.registry.get(record._class)
         return edge_cls.from_graph(self, record._rid
-           , in_hash, out_hash
-           , self.props_from_db[edge_cls](props)) if edge_cls \
+                                   , in_hash, out_hash
+                                   , self.props_from_db[edge_cls](props)) if edge_cls \
             else Edge.from_graph(self, record._rid, in_hash, out_hash, props)
 
     def edges_from_records(self, records):
@@ -809,26 +793,26 @@ class Graph(object):
         return [self.element_from_link(link) for link in links]
 
     PROPERTY_TYPES = {
-        0:Boolean
-        , 1:Integer
-        , 2:Short
-        , 3:Long
-        , 4:Float
-        , 5:Double
-        , 6:DateTime
-        , 7:String
-        , 8:Binary
-        , 9:Embedded
-        , 10:EmbeddedList
-        , 11:EmbeddedSet
-        , 12:EmbeddedMap
-        , 13:Link
-        , 14:LinkList
-        , 15:LinkSet
-        , 16:LinkMap
-        , 17:Byte
-        , 19:Date
-        , 21:Decimal
+        0: Boolean
+        , 1: Integer
+        , 2: Short
+        , 3: Long
+        , 4: Float
+        , 5: Double
+        , 6: DateTime
+        , 7: String
+        , 8: Binary
+        , 9: Embedded
+        , 10: EmbeddedList
+        , 11: EmbeddedSet
+        , 12: EmbeddedMap
+        , 13: Link
+        , 14: LinkList
+        , 15: LinkSet
+        , 16: LinkMap
+        , 17: Byte
+        , 19: Date
+        , 21: Decimal
     }
 
     @classmethod
@@ -838,8 +822,8 @@ class Graph(object):
         property_params = {
             'nullable': not prop_def['notNull'],
             'default': prop_def.get('defaultValue', None),
-            'indexed': False, # FIXME
-            'unique': False, # FIXME
+            'indexed': False,  # FIXME
+            'unique': False,  # FIXME
             'mandatory': prop_def['mandatory'],
             'readonly': prop_def['readonly']
         }
@@ -848,7 +832,6 @@ class Graph(object):
             property_params['linked_to'] = linked_class
 
         return prop_type(**property_params)
-
 
     @staticmethod
     def valid_element_base(cls):
@@ -859,7 +842,7 @@ class Graph(object):
 
     @staticmethod
     def guard_reserved_words(word, cls):
-        reserved_words = [[],['in', 'out']][cls.decl_type]
+        reserved_words = [[], ['in', 'out']][cls.decl_type]
         if word in reserved_words:
             # Should the class also be dropped from the database?
             raise ReservedWordError(
@@ -870,8 +853,8 @@ class Graph(object):
     @staticmethod
     def create_props_mapping(db_to_element):
         return lambda db_props: {
-            db_to_element[k]:v for k,v in db_props.items()
-                if k in db_to_element }
+            db_to_element[k]: v for k, v in db_props.items()
+            if k in db_to_element}
 
     @staticmethod
     def props_to_db(element_class, props, strict):
@@ -902,7 +885,7 @@ class Graph(object):
             if isinstance(p, Property):
                 props.append((m, p))
 
-        props = sorted(props, key=lambda p:p[1].instance_idx)
+        props = sorted(props, key=lambda p: p[1].instance_idx)
         for prop_name, prop_value in props:
             value_name = prop_value.name
             if value_name:
@@ -955,6 +938,7 @@ class Graph(object):
     @staticmethod
     def toposort_classes(classes):
         """Sort class metadatas so that a superclass is always before the subclass"""
+
         def get_class_topolist(class_name, name_to_class, processed_classes, current_trace):
             """Return a topologically sorted list of this class's dependencies and class itself
 
