@@ -12,6 +12,7 @@ os.environ['DEBUG_VERBOSE'] = "0"
 #     sys.path.insert(0, os.path.realpath('.'))
 
 import pyorient
+from uuid import uuid4
 
 
 class FreezeReleaseTestCase(unittest.TestCase):
@@ -25,12 +26,26 @@ class FreezeReleaseTestCase(unittest.TestCase):
             client.db_create(db_name)
 
         client.db_open(db_name, "root", "root")
+
+        client.command("CREATE CLASS TestClass IF NOT EXISTS")
+        client.command("INSERT INTO TestClass (id, name) VALUES ('{id}', '{name}')".format(id = str(uuid4()), name="maakt_niet_uit"))
+
         try:
             client.db_freeze()
-            # client.db_close()
+            client.db_close()
         except RuntimeError as re:
             pass
         
-        # client.db_open(db_name, "root", "root")
+        # this should throw an error
+        # client.command("INSERT INTO TestClass (id, name) VALUES ('{id}', '{name}')".format(id = str(uuid4()), name="maakt_niet_uit"))
+
+        client = pyorient.OrientDB("localhost", 2424)
+        session_id = client.connect("root", "root")
+       
+        client.db_open(db_name, "root", "root")
         client.db_release()
+
+        # this should run without error
+        client.command("INSERT INTO TestClass (id, name) VALUES ('{id}', '{name}')".format(id = str(uuid4()), name="maakt_niet_uit"))
+
 
