@@ -13,7 +13,8 @@ from pyorient.constants import DB_OPEN_OP, DB_TYPE_DOCUMENT, DB_COUNT_RECORDS_OP
     FIELD_SHORT, FIELD_STRINGS, FIELD_BYTES, NAME, SUPPORTED_PROTOCOL, VERSION, FIELD_RECORD, FIELD_TYPE_LINK, \
     DB_TYPES, DB_CLOSE_OP, DB_EXIST_OP, STORAGE_TYPE_PLOCAL, STORAGE_TYPE_LOCAL, DB_CREATE_OP, FIELD_INT, \
     FIELD_STRING, FIELD_BYTE, FIELD_BOOLEAN, INT, SHORT, LONG, BOOLEAN, BYTE, BYTES, STRING, STRINGS, \
-    RECORD, LINK, CHAR, DB_DROP_OP, DB_RELOAD_OP, DB_SIZE_OP, DB_LIST_OP, STORAGE_TYPES, FIELD_LONG
+    RECORD, LINK, CHAR, DB_DROP_OP, DB_RELOAD_OP, DB_SIZE_OP, DB_LIST_OP, STORAGE_TYPES, FIELD_LONG, \
+    DB_FREEZE_OP, DB_RELEASE_OP
 from pyorient.hexdump import hexdump
 from pyorient.utils import need_connected, need_db_opened, is_debug_active
 from pyorient.otypes import OrientRecord, OrientCluster, OrientVersion, OrientRecordLink, OrientNode
@@ -1130,3 +1131,52 @@ class ConnectMessage(BaseMessage):
     def set_client_id(self, _cid):
         self._client_id = _cid
         return self
+
+
+#
+# DB FREEZE
+#
+# Flushes database and prevents any other updates until DB RELEASE is send
+#
+# Request: empty
+# Response: (size:long)
+#
+class DbFreezeMessage(BaseMessage):
+    def __init__(self, _orient_socket):
+        super(DbFreezeMessage, self).__init__(_orient_socket)
+
+        # order matters
+        self._append((FIELD_BYTE, DB_FREEZE_OP))
+
+    @need_db_opened
+    def prepare(self, params=None):
+        return super(DbFreezeMessage, self).prepare()
+
+    def fetch_response(self):
+        self._append(FIELD_LONG)
+        return super(DbFreezeMessage, self).fetch_response()[0]
+
+
+#
+# DB RELEASE
+#
+# Flushes database and prevents any other updates until DB RELEASE is send
+#
+# Request: empty
+# Response: (size:long)
+#
+class DbReleaseMessage(BaseMessage):
+    def __init__(self, _orient_socket):
+        super(DbReleaseMessage, self).__init__(_orient_socket)
+
+        # order matters
+        self._append((FIELD_BYTE, DB_RELEASE_OP))
+
+    @need_db_opened
+    def prepare(self, params=None):
+        return super(DbReleaseMessage, self).prepare()
+
+    def fetch_response(self):
+        self._append(FIELD_LONG)
+        return super(DbReleaseMessage, self).fetch_response()[0]
+

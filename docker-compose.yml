@@ -1,0 +1,13 @@
+version: '3.2'
+services:
+  orientdb:
+    image: orientdb:3.2.5
+    env_file:
+      - orientdb.env
+    ports:
+      - 2480:2480
+      - 2424:2424
+    logging:
+      options:
+        max-size: 50k
+    command: "server.sh"

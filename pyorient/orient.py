@@ -222,6 +222,11 @@ class OrientDB(object):
         DbReloadMessage="pyorient.messages.database",
         DbSizeMessage="pyorient.messages.database",
         DbListMessage="pyorient.messages.database",
+        # freeze and release
+        DbFreezeMessage="pyorient.messages.database",
+        DbReleaseMessage="pyorient.messages.database",
+
+
 
         # Cluster
         DataClusterAddMessage="pyorient.messages.cluster",
@@ -515,6 +520,16 @@ class OrientDB(object):
     def db_size(self, *args):
         return self.get_message("DbSizeMessage") \
             .prepare(args).send().fetch_response()
+
+# because we need it
+    def db_freeze(self, *args):
+        return self.get_message("DbFreezeMessage") \
+            .prepare(args).send() #.fetch_response()
+
+    def db_release(self, *args):
+        return self.get_message("DbReleaseMessage") \
+            .prepare(args).send() #.fetch_response()
+            
 
     def db_list(self, *args):
         return self.get_message("DbListMessage") \

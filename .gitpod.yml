@@ -1,0 +1,11 @@
+
+tasks:
+  - init: pip install .
+
+
+
+vscode:
+  extensions:
+    - ms-python.python
+    - littlefoxteam.vscode-python-test-adapter
+    - hbenl.test-adapter-converter

@@ -54,6 +54,10 @@ DB_CLOSE = "DbCloseMessage"
 DB_EXIST = "DbExistsMessage"
 DB_DROP = "DbDropMessage"
 DB_SIZE = "DbSizeMessage"
+# added because we need it
+DB_FREEZE = "DbFreezeMessage"
+DB_RELEASE = "DbReleaseMessage"
+#
 DB_COUNT_RECORDS = "DbCountRecordsMessage"
 DATA_CLUSTER_ADD = "DataClusterAddMessage"
 DATA_CLUSTER_DROP = "DataClusterDropMessage"
@@ -95,6 +99,10 @@ TX_COMMIT_OP = chr(60)
 
 DB_RELOAD_OP = chr(73)
 DB_LIST_OP = chr(74)
+
+# Freeze and Release
+DB_FREEZE_OP = chr(94)
+DB_RELEASE_OP = chr(95)
 
 #
 # Orient Primitives
